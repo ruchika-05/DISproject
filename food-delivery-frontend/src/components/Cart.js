@@ -1,23 +1,48 @@
 import React from "react";
 import "../styles/Cart.css";
 
-function Cart({ cart, setCart, isLoggedIn }) {
+function Cart({ cart, setCart, isAuthenticated }) {
   const handleRemove = (index) => {
     const updatedCart = [...cart];
     updatedCart.splice(index, 1);
     setCart(updatedCart);
   };
 
-  const handlePlaceOrder = () => {
-    if (!isLoggedIn) {
+  const handlePlaceOrder = async () => {
+    if (!isAuthenticated) {
       alert("You need to log in to place an order.");
       return;
     }
-    alert("Order placed successfully!");
-    setCart([]);
+  
+    try {
+      const userId = localStorage.getItem("userId"); // Assuming you saved userId on login
+  
+      const response = await fetch("http://localhost:5000/orders", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          user_id: userId,
+          restaurant_id: cart[0]?.restaurant_id, // assuming all items are from the same restaurant
+          items: cart,
+        }),
+      });
+  
+      const result = await response.json();
+  
+      if (result.success) {
+        alert("Order placed successfully!");
+        setCart([]);
+      } else {
+        alert("Failed to place order.");
+      }
+    } catch (error) {
+      console.error("Order error:", error);
+      alert("Error placing order.");
+    }
   };
+  
 
-  const total = cart.reduce((sum, item) => sum + item.price, 0);
+  const total = cart.reduce((sum, item) => sum + Number(item.price), 0);
 
   return (
     <div className="cart-container">
@@ -45,7 +70,7 @@ function Cart({ cart, setCart, isLoggedIn }) {
             <button
               className="place-order-btn"
               onClick={handlePlaceOrder}
-              disabled={!isLoggedIn}
+              disabled={!isAuthenticated}
             >
               Place Order
             </button>

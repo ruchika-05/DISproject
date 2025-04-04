@@ -117,11 +117,11 @@ app.listen(5000, () => {
     console.log("Server running on port 5000");
 });
 app.post("/api/login", (req, res) => {
-    const { email, password } = req.body;
+    let { email, password } = req.body;
   
-    if (!email || !password) {
-      return res.status(400).json({ success: false, message: "Missing credentials" });
-    }
+    // Trim inputs to avoid issues with spaces
+    email = email.trim();
+    password = password.trim();
   
     const sql = "SELECT * FROM users WHERE email = ? AND password = ?";
     db.query(sql, [email, password], (err, results) => {
@@ -137,5 +137,6 @@ app.post("/api/login", (req, res) => {
       }
     });
   });
+  
   
 
