@@ -1,10 +1,14 @@
 const express = require("express");
 const mysql = require("mysql2");
 const cors = require("cors");
+const bodyParser = require("body-parser");
 
 const app = express();
 app.use(cors());
 app.use(express.json());
+app.use(bodyParser.urlencoded({ extended: true }));
+
+const port = 5000;
 
 const db = mysql.createConnection({
     host: "localhost",
@@ -21,6 +25,23 @@ db.connect(err => {
     }
 });
 
+app.post("/api/register", (req, res) => {
+    const { name, email, phone, password, address, pincode, state } = req.body;
+  
+    const sql =
+      "INSERT INTO users (name, email, phone, password, address, pincode, state) VALUES (?, ?, ?, ?, ?, ?, ?)";
+  
+    db.query(sql, [name, email, phone, password, address, pincode, state], (err, result) => {
+      if (err) {
+        console.error("Registration error:", err);
+        return res.json({ success: false, message: "Email already exists or error occurred." });
+      }
+      res.json({ success: true });
+    });
+  });
+  
+  
+  
 app.get("/restaurants", (req, res) => {
     db.query("SELECT id, name, address, contact_info, image_url FROM restaurants", (err, result) => {
         if (err) res.status(500).json(err);
@@ -95,28 +116,26 @@ app.get("/orders/:userId", (req, res) => {
 app.listen(5000, () => {
     console.log("Server running on port 5000");
 });
-app.use(express.json()); // Ensure the server can parse JSON requests
-
-app.post("/place-order", async (req, res) => {
-    try {
-        const { userId, restaurantId, items } = req.body;
-
-        if (!items || !Array.isArray(items) || items.length === 0) {
-            return res.status(400).json({ error: "Cart is empty or invalid" });
-        }
-
-        const itemsJson = JSON.stringify(items); // Convert array to JSON string
-
-        const [order] = await db.execute(
-            "INSERT INTO orders (user_id, restaurant_id, items, status) VALUES (?, ?, ?, ?)", 
-            [userId || 1, restaurantId || 1, itemsJson, "Pending"]
-        );
-
-        res.status(201).json({ message: "Order placed successfully!", orderId: order.insertId });
-    } catch (error) {
-        console.error("Order Error:", error);
-        res.status(500).json({ error: "Failed to place order" });
+app.post("/api/login", (req, res) => {
+    const { email, password } = req.body;
+  
+    if (!email || !password) {
+      return res.status(400).json({ success: false, message: "Missing credentials" });
     }
-});
-
+  
+    const sql = "SELECT * FROM users WHERE email = ? AND password = ?";
+    db.query(sql, [email, password], (err, results) => {
+      if (err) {
+        console.error("Login error:", err);
+        return res.status(500).json({ success: false, message: "Server error" });
+      }
+  
+      if (results.length > 0) {
+        return res.json({ success: true, user: results[0] });
+      } else {
+        return res.json({ success: false, message: "Invalid email or password" });
+      }
+    });
+  });
+  
 

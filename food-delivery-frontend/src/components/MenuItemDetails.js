@@ -1,45 +1,36 @@
-import { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
-import axios from "axios";
+import React, { useEffect, useState } from 'react';
+import { useParams } from 'react-router-dom';
+import axios from 'axios';
+import '../styles/MenuItemDetails.css';
 
 function MenuItemDetails({ cart, setCart }) {
     const { menuId } = useParams();
-    const navigate = useNavigate();
-    const [menuItem, setMenuItem] = useState(null);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
+    const [item, setItem] = useState(null);
 
     useEffect(() => {
         axios.get(`http://localhost:5000/menu-item/${menuId}`)
-            .then(res => {
-                setMenuItem(res.data);
-                setLoading(false);
-            })
-            .catch(err => {
-                console.error("API Error:", err);
-                setError("Failed to load menu item");
-                setLoading(false);
-            });
+            .then(response => setItem(response.data))
+            .catch(error => console.error('Failed to fetch menu item:', error));
     }, [menuId]);
 
     const handleAddToCart = () => {
-        const updatedCart = [...cart, menuItem]; // Add item to cart
-        setCart(updatedCart);
-        alert(`${menuItem.dish_name} added to cart!`);
+        setCart([...cart, item]);
+        alert('Item added to cart!');
     };
 
-    if (loading) return <h2>Loading...</h2>;
-    if (error) return <h2 style={{ color: "red" }}>{error}</h2>;
+    if (!item) return <div className="loading">Loading...</div>;
 
     return (
-        <div className="menu-item-details">
-            <img src={menuItem.image_url} alt={menuItem.dish_name} className="menu-item-img" />
-            <h2>{menuItem.dish_name}</h2>
-            <p><strong>Price:</strong> ₹{menuItem.price}</p>
-            <p><strong>Availability:</strong> {menuItem.availability ? "Available" : "Out of Stock"}</p>
-
-            <button onClick={handleAddToCart}>Add to Cart</button>
-            <button onClick={() => navigate("/cart")}>Go to Cart</button>
+        <div className="item-details-container">
+            <div className="item-image">
+                <img src={item.image_url} alt={item.dish_name} />
+            </div>
+            <div className="item-content">
+                <h2>{item.dish_name}</h2>
+                <p><strong>Price:</strong> ₹{item.price}</p>
+                <p><strong>Available:</strong> {item.availability ? 'Yes' : 'No'}</p>
+                <button onClick={handleAddToCart}>Add to Cart</button>
+            </div>
         </div>
     );
 }

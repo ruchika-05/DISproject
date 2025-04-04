@@ -1,43 +1,48 @@
-import { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom"; // Import navigate
+import React, { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
 import axios from "axios";
+import "../styles/Menu.css";
 
-function Menu() {
-    const { restaurantId } = useParams(); // Get restaurant ID from URL
-    const [menu, setMenu] = useState([]);
-    const navigate = useNavigate(); // Initialize navigation
-
+function Menu({ cart, setCart }) {
+    const { restaurantId } = useParams();
+    const [menuItems, setMenuItems] = useState([]);
+    const [restaurantName, setRestaurantName] = useState("");
+  
     useEffect(() => {
-        axios.get(`http://localhost:5000/menu/${restaurantId}`)
-            .then(res => setMenu(res.data))
-            .catch(err => console.error(err));
+      axios.get(`http://localhost:5000/menu/${restaurantId}`)
+        .then((res) => {
+          setMenuItems(res.data);
+          if (res.data.length > 0) {
+            setRestaurantName(res.data[0].restaurant_name);
+          }
+        })
+        .catch((err) => console.error("Error fetching menu:", err));
     }, [restaurantId]);
-
-    const handleMenuClick = (menuId) => {
-        console.log("Navigating to menu item:", menuId); // Debugging
-        navigate(`/menu-item/${menuId}`);
+  
+    const handleAddToCart = (item) => {
+      const updatedCart = [...(cart || []), item];
+      setCart(updatedCart);
+      alert(`${item.dish_name} added to cart`);
     };
-    
-
+  
     return (
-        <div>
-            <h2>Menu</h2>
-            <div className="menu-list">
-                {menu.map(item => (
-                    <div 
-                        key={item.id} 
-                        className="menu-card" 
-                        onClick={() => handleMenuClick(item.id)} // Click event
-                        style={{ cursor: "pointer" }} // Add pointer cursor
-                    >
-                        <img src={item.image_url} alt={item.dish_name} className="menu-img" />
-                        <h3>{item.dish_name}</h3>
-                        <p>₹{item.price}</p>
-                    </div>
-                ))}
+      <div className="menu-container">
+        <header className="menu-header">
+          <h2>Menu - {restaurantName || "Restaurant"}</h2>
+        </header>
+  
+        <div className="menu-grid">
+          {menuItems.map((item) => (
+            <div key={item.id} className="menu-card">
+              <img src={item.image_url} alt={item.dish_name} className="menu-img" />
+              <h3>{item.dish_name}</h3>
+              <p>₹{item.price}</p>
+              <button className="add-btn" onClick={() => handleAddToCart(item)}>Add to Cart</button>
             </div>
+          ))}
         </div>
+      </div>
     );
-}
-
+  }
+  
 export default Menu;
