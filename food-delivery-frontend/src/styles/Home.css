@@ -1,0 +1,136 @@
+/* Entire Page */
+.home-page {
+    font-family: 'Poppins', sans-serif;
+    color: #333;
+    background-color: #f9f9f9;
+  }
+  
+  /* Hero Section */
+  .hero {
+    background: linear-gradient(135deg, #ff9a8b, #ff6a88, #ff99ac);
+    color: white;
+    text-align: center;
+    padding: 100px 20px;
+    border-bottom-left-radius: 50px;
+    border-bottom-right-radius: 50px;
+  }
+  
+  .hero h1 {
+    font-size: 3rem;
+    margin-bottom: 15px;
+  }
+  
+  .hero p {
+    font-size: 1.2rem;
+    margin-bottom: 30px;
+  }
+  
+  .hero button {
+    background-color: white;
+    color: #ff6a88;
+    border: none;
+    padding: 12px 30px;
+    border-radius: 30px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: 0.3s;
+  }
+  
+  .hero button:hover {
+    background-color: #ffe3e8;
+  }
+  
+  /* Features Section */
+  .features {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 20px;
+    padding: 50px 20px;
+    text-align: center;
+  }
+  
+  .feature-card {
+    background-color: white;
+    padding: 30px 20px;
+    border-radius: 20px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    font-size: 1.1rem;
+    transition: 0.3s;
+  }
+  
+  .feature-card:hover {
+    transform: translateY(-5px);
+  }
+  
+  /* Popular Section */
+  .popular-section {
+    padding: 50px 20px;
+    text-align: center;
+  }
+  
+  .popular-section h2 {
+    font-size: 2rem;
+    margin-bottom: 30px;
+  }
+  
+  .carousel {
+    display: flex;
+    gap: 20px;
+    overflow-x: auto;
+    padding-bottom: 10px;
+  }
+  
+  .carousel::-webkit-scrollbar {
+    display: none;
+  }
+  
+  .carousel div {
+    flex: 0 0 auto;
+    background-color: white;
+    padding: 20px;
+    border-radius: 15px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    min-width: 200px;
+  }
+  
+  /* Footer */
+  .footer {
+    background-color: #333;
+    color: white;
+    text-align: center;
+    padding: 20px;
+    margin-top: 50px;
+    border-top-left-radius: 50px;
+    border-top-right-radius: 50px;
+    font-size: 0.9rem;
+  }
+  .carousel {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    overflow-x: auto;
+    flex-wrap: wrap;
+    padding: 20px 0;
+  }
+  
+  .dish-card {
+    min-width: 180px;
+    text-align: center;
+    background-color: #fff;
+    padding: 10px;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    transition: transform 0.3s;
+  }
+  
+  .dish-card img {
+    width: 100%;
+    height: 120px;
+    object-fit: cover;
+    border-radius: 8px;
+  }
+  
+  .dish-card:hover {
+    transform: translateY(-5px);
+  }
+  

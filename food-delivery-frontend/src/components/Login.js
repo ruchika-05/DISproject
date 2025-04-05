@@ -12,22 +12,22 @@ function Login({ login }) {
 
   const handleLogin = async (e) => {
     e.preventDefault();
-  
-    console.log("Attempting login with:", form); // ✅ ADD THIS LINE
-  
+    console.log("Attempting login with:", form);
+
     try {
       const res = await fetch("http://localhost:5000/api/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(form),
       });
-  
+
       const result = await res.json();
-  
-      if (result.success) {
-        localStorage.setItem("userId", result.user.id); // store user id
-  localStorage.setItem("userName", result.user.name); // optional
-        login();
+      console.log("Login response:", result);
+
+      if (result.success && result.user) {
+        localStorage.setItem("userId", result.user.id);
+        localStorage.setItem("userName", result.user.name); // optional
+        login(); // update auth state
         alert("Login successful!");
         navigate("/");
       } else {
@@ -38,17 +38,31 @@ function Login({ login }) {
       alert("Error logging in.");
     }
   };
-  
 
   return (
     <div className="login-container">
       <h2>Login</h2>
       <form className="login-form" onSubmit={handleLogin}>
-        <input type="email" name="email" placeholder="Email" value={form.email} onChange={handleChange} required />
-        <input type="password" name="password" placeholder="Password" value={form.password} onChange={handleChange} required />
+        <input
+          type="email"
+          name="email"
+          placeholder="Email"
+          value={form.email}
+          onChange={handleChange}
+          required
+        />
+        <input
+          type="password"
+          name="password"
+          placeholder="Password"
+          value={form.password}
+          onChange={handleChange}
+          required
+        />
         <button type="submit">Login</button>
         <p>
-          Don’t have an account? <span onClick={() => navigate("/register")}>Register</span>
+          Don’t have an account?{" "}
+          <span onClick={() => navigate("/register")}>Register</span>
         </p>
       </form>
     </div>

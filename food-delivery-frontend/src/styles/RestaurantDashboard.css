@@ -1,0 +1,85 @@
+.dashboard-container {
+    max-width: 1100px;
+    margin: 4rem auto;
+    padding: 2rem;
+    background: #fff;
+    border-radius: 1rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  }
+  
+  .dashboard-container h2 {
+    font-size: 2rem;
+    margin-bottom: 1.5rem;
+    color: #333;
+    border-bottom: 2px solid #eee;
+    padding-bottom: 0.5rem;
+  }
+  
+  .add-dish-btn {
+    padding: 0.8rem 1.5rem;
+    background-color: #ff6347;
+    color: #fff;
+    border: none;
+    border-radius: 2rem;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: 0.3s;
+    margin-bottom: 2rem;
+  }
+  
+  .add-dish-btn:hover {
+    background-color: #ff4b2b;
+  }
+  
+  .dishes-list, .orders-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 3rem;
+  }
+  
+  .dish-card, .order-card {
+    background: #fafafa;
+    padding: 1.5rem;
+    border-radius: 1rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    text-align: center;
+  }
+  
+  .dish-card img {
+    width: 100%;
+    height: 180px;
+    object-fit: cover;
+    border-radius: 0.8rem;
+    margin-bottom: 1rem;
+  }
+  
+  .dish-card h3 {
+    margin-bottom: 0.5rem;
+  }
+  
+  .dish-card p {
+    margin-bottom: 0.5rem;
+    color: #555;
+  }
+  
+  .dish-card button, .order-card button {
+    padding: 0.6rem 1.2rem;
+    border: none;
+    border-radius: 2rem;
+    background-color: #333;
+    color: white;
+    cursor: pointer;
+    transition: 0.3s;
+  }
+  
+  .dish-card button:hover, .order-card button:hover {
+    background-color: #000;
+  }
+  
+  .order-card p {
+    margin-bottom: 0.5rem;
+    color: #555;
+  }
+  
+  

@@ -6,8 +6,13 @@ function Orders() {
     const [orders, setOrders] = useState([]);
 
     useEffect(() => {
-        axios.get('http://localhost:5000/orders?user_id=1')
+        const userId = localStorage.getItem("userId");
+
+        if (!userId) return;
+
+        axios.get(`http://localhost:5000/orders/${userId}`)
             .then((res) => {
+                console.log("Fetched orders:", res.data);
                 setOrders(res.data);
             })
             .catch((err) => {
@@ -24,9 +29,15 @@ function Orders() {
                 <div className="orders-list">
                     {orders.map((order, index) => (
                         <div key={index} className="order-card">
-                            <h3>Order #{order.order_id}</h3>
-                            <p><strong>Restaurant:</strong> {order.restaurant_name}</p>
-                            <p><strong>Items:</strong> {order.items.join(', ')}</p>
+                            <h3>Order #{order.id}</h3>
+                            <p><strong>Restaurant:</strong> {order.restaurant_name || "Unknown"}</p>
+                            <p><strong>Items:</strong> {order.items}</p>
+                            <p>
+                            <strong>Status:</strong>{" "}
+                            <span className={`status ${order.status.toLowerCase()}`}>
+                                {order.status}
+                            </span>
+                            </p>
                         </div>
                     ))}
                 </div>
