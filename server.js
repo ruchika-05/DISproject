@@ -25,7 +25,7 @@ db.connect(err => {
     }
 });
 
-// ✅ USER REGISTRATION
+// USER REGISTRATION
 app.post("/api/register", (req, res) => {
     const { name, email, phone, password, address, pincode, state } = req.body;
 
@@ -41,7 +41,7 @@ app.post("/api/register", (req, res) => {
     });
 });
 
-// ✅ LOGIN
+// LOGIN
 app.post("/api/login", (req, res) => {
     let { email, password } = req.body;
 
