@@ -1,55 +1,98 @@
 .dishes-container {
-    padding: 20px;
-    text-align: center;
-  }
-  
-  .dishes-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 20px;
-  }
-  
-  .dish-card {
-    border: 1px solid #ddd;
-    padding: 10px;
-    border-radius: 8px;
-  }
-  
-  .dish-img {
-    width: 100%;
-    height: 150px;
-    object-fit: cover;
-    border-radius: 6px;
-  }
-  .search-input {
-    width: 100%;
-    padding: 10px;
-    margin: 20px 0;
-    border-radius: 8px;
-    border: 1px solid #ccc;
-    outline: none;
-  }
-  
-  .search-input:focus {
-    border-color: #4ade80; /* green-400 */
-    box-shadow: 0 0 5px rgba(74, 222, 128, 0.5);
-  }
-  .search-bar {
-    width: 100%;
-    max-width: 400px;
-    margin: 20px auto;
-    padding: 10px 15px;
-    border: 1px solid #ccc;
-    border-radius: 25px;
-    font-size: 16px;
-    outline: none;
-    display: block;
-  }
-  
-  .no-result {
-    text-align: center;
-    margin-top: 30px;
-    color: gray;
-    font-size: 18px;
-  }
-  
+  padding: 20px;
+  padding-top: 100px;
+  text-align: center;
+}
+.dish-heading{
+  color: rgb(247, 101, 101);
+  font-size: 35px;
+}
+.dishes-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 20px;
+  justify-content: center;
+}
+
+.dish-card {
+  width: 200px;
+  height: 320px; /* slightly increased height to avoid overflow */
+  border: 1px solid #ddd;
+  padding: 10px;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  text-align: center;
+  background-color: #fff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  transition: transform 0.2s ease;
+}
+
+.dish-card:hover {
+  transform: translateY(-4px);
+}
+
+.dish-img {
+  width: 100%;
+  height: 150px;
+  object-fit: cover;
+  border-radius: 6px;
+}
+
+.dish-card h3 {
+  font-size: 1rem;
+  margin: 8px 0 4px;
+  color: #333;
+}
+
+.dish-card p {
+  font-size: 0.9rem;
+  color: #666;
+  margin: 2px 0;
+}
+
+.dish-restaurant {
+  font-style: italic;
+  color: #999;
+}
+
+.add-cart-btn {
+  margin-top: auto;
+  padding: 8px 12px;
+  background-color: #f85454 !important;
+  color: white !important;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: 0.3s;
+}
+
+.add-cart-btn:hover {
+  background-color: #fbb574 !important;
+}
+
+.search-bar {
+  width: 100%;
+  max-width: 400px;
+  margin: 20px auto;
+  padding: 10px 15px;
+  border: 1px solid #ccc;
+  border-radius: 25px;
+  font-size: 16px;
+  outline: none;
+  display: block;
+}
+
+.search-bar:focus {
+  border-color: #fbb574;
+  box-shadow: 0 0 5px rgba(254, 176, 116, 0.5);
+}
+
+.no-result {
+  text-align: center;
+  margin-top: 30px;
+  color: gray;
+  font-size: 18px;
+}

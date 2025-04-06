@@ -1,37 +1,71 @@
+/* Base navbar style */
 .navbar {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 15px 40px;
-  background: linear-gradient(135deg, #ff9a8b, #ff6a88, #ff99ac);
+  padding: 1rem 2rem;
+  position: fixed;
+  top: 0;
+  width: 100%;
+  z-index: 10;
+  flex-wrap: wrap;
+  gap: 1rem;
+  box-sizing: border-box;
+}
+
+/* Transparent for Home page */
+.transparent-navbar {
+  background: transparent;
   color: white;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+/* Pink gradient for all other pages */
+.colored-navbar {
+  background: linear-gradient(to right, #ff6f91, #ff9472);
+  color: white;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .logo {
-  font-size: 2rem;
-  cursor: pointer;
+  font-size: 1.8rem;
   font-weight: bold;
+  cursor: pointer;
+  color: white;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
+/* Nav Links Container */
 .nav-links {
   display: flex;
-  gap: 20px;
+  flex-wrap: wrap;
+  gap: 1rem;
   list-style: none;
+  margin: 0;
+  padding: 0;
   align-items: center;
+  justify-content: flex-end;
+  flex-grow: 1;
+  min-width: 300px;
+  overflow-x: auto;
 }
 
-.nav-links li a, .nav-links span {
+/* Each Link/Item */
+.nav-links a,
+.nav-links span {
   color: white;
-  font-size: 1rem;
+  text-decoration: none;
+  font-weight: 500;
+  cursor: pointer;
   display: flex;
   align-items: center;
-  gap: 5px;
-  cursor: pointer;
-  transition: color 0.3s ease;
+  gap: 6px;
+  white-space: nowrap;
+  font-size: 0.95rem;
 }
 
-.nav-links li a:hover, .logout-btn:hover {
+.nav-links a:hover,
+.logout-btn:hover {
   color: #ffe7e0;
 }
 

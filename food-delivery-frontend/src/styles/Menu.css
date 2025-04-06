@@ -1,12 +1,13 @@
 .menu-container {
   padding: 20px;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  padding-top: 150px;
 }
 
 .menu-header {
-
+  background :linear-gradient(#fd8e75,#f58686);
   padding: 20px;
-  color: rgb(243, 108, 124);
+  color: rgb(255, 255, 255);
   border-radius: 10px;
   text-align: center;
   margin-bottom: 30px;
@@ -51,7 +52,7 @@
 }
 
 .add-btn {
-  background-color: #28a745;
+  background-color: #f85454 !important;
   border: none;
   color: white;
   padding: 10px 15px;
@@ -62,5 +63,5 @@
 }
 
 .add-btn:hover {
-  background-color: #218838;
+  background-color: #fbb574 !important;
 }

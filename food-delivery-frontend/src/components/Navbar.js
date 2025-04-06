@@ -1,26 +1,31 @@
 import React from "react";
-import { Link, useNavigate,useLocation } from "react-router-dom";
-import { FaShoppingCart, FaSignOutAlt, FaSignInAlt, FaUtensils, FaStore,FaHome,FaFileInvoice } from "react-icons/fa";
+import { Link, useNavigate, useLocation } from "react-router-dom";
+import {
+  FaShoppingCart,
+  FaSignOutAlt,
+  FaSignInAlt,
+  FaUtensils,
+  FaStore,
+  FaHome,
+  FaFileInvoice,
+} from "react-icons/fa";
 import "../styles/Navbar.css";
 
 function Navbar({ isLoggedIn, logout, isRestaurantLoggedIn, restaurantLogout }) {
   const navigate = useNavigate();
   const location = useLocation();
-  if (location.pathname === "/") {
-    return null;  // Don't show Navbar on Home page
-  }
+  const isHomePage = location.pathname === "/";
+
   return (
-    <nav className="navbar">
-      <h1 className="logo" onClick={() => navigate('/')}>FoodieExpress</h1>
+    <nav className={`navbar ${isHomePage ? "transparent-navbar" : "colored-navbar"}`}>
+      <h1 className="logo" onClick={() => navigate("/")}>FoodieExpress</h1>
 
       <ul className="nav-links">
-        <li><Link to="/"><FaHome></FaHome>Home</Link></li>
+        <li><Link to="/"><FaHome /> Home</Link></li>
         <li><Link to="/dishes"><FaUtensils /> Dishes</Link></li>
         <li><Link to="/restaurants"><FaStore /> Restaurants</Link></li>
         <li><Link to="/cart"><FaShoppingCart /> Cart</Link></li>
-
-        {isLoggedIn && <li><Link to="/orders"><FaFileInvoice/>Orders</Link></li>}
-
+        {isLoggedIn && <li><Link to="/orders"><FaFileInvoice /> Orders</Link></li>}
         <li>
           {isLoggedIn ? (
             <span onClick={logout} className="logout-btn">
@@ -30,7 +35,6 @@ function Navbar({ isLoggedIn, logout, isRestaurantLoggedIn, restaurantLogout }) 
             <Link to="/login"><FaSignInAlt /> Login</Link>
           )}
         </li>
-
         <li>
           {isRestaurantLoggedIn ? (
             <span onClick={restaurantLogout} className="logout-btn">

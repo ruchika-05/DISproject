@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import '../styles/RestaurantLogin.css';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate,Link } from 'react-router-dom';
 
-function RestaurantLogin() {
+function RestaurantLogin({ restaurantLogin }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -24,7 +24,10 @@ function RestaurantLogin() {
       // Store restaurant ID locally
       localStorage.setItem('restaurantId', restaurantId);
 
-      // Redirect to restaurant dashboard or menu management page
+      // 🔥 Update auth state in AppWrapper
+      restaurantLogin();
+
+      // Redirect to restaurant dashboard
       navigate('/restaurant-dashboard');
     } catch (err) {
       console.error(err);
@@ -58,6 +61,10 @@ function RestaurantLogin() {
         />
 
         <button type="submit">Login</button>
+        <p style={{ marginTop: '1rem' }}>
+        Don't have an account?{' '}
+        <Link to="/restaurant/register">Register here</Link>
+      </p>
       </form>
     </div>
   );

@@ -5,6 +5,7 @@
   background-color: #fff;
   border-radius: 20px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  padding-top: 70px;
 }
 
 .cart-heading {
@@ -12,7 +13,7 @@
   font-size: 30px;
   font-weight: 600;
   margin-bottom: 30px;
-  color: #333;
+  color: #f77171;
 }
 
 .empty-msg {
@@ -103,4 +104,76 @@
 .place-order-btn:disabled {
   background-color: #ccc;
   cursor: not-allowed;
+}
+.address-section {
+  margin-bottom: 30px;
+  background-color: #fff4f0;
+  padding: 20px;
+  border-radius: 15px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
+}
+
+.address-section h3 {
+  margin-bottom: 10px;
+  font-size: 1.2rem;
+  color: #444;
+}
+
+.address-section p {
+  margin: 6px 0;
+  color: #555;
+  font-size: 0.95rem;
+}
+
+.address-section input {
+  display: block;
+  width: 100%;
+  margin: 10px 0;
+  padding: 10px 14px;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  font-size: 0.95rem;
+}
+
+.edit-btn,
+.save-btn,
+.cancel-btn {
+  padding: 10px 16px;
+  margin-top: 10px;
+  margin-right: 10px;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.edit-btn {
+  background-color: #ffa07a;
+  color: white;
+}
+
+.edit-btn:hover {
+  background-color: #ff7b54;
+  transform: translateY(-2px);
+}
+
+.save-btn {
+  background-color: #4caf50;
+  color: white;
+}
+
+.save-btn:hover {
+  background-color: #45a049;
+  transform: translateY(-2px);
+}
+
+.cancel-btn {
+  background-color: #bbb;
+  color: white;
+}
+
+.cancel-btn:hover {
+  background-color: #999;
+  transform: translateY(-2px);
 }

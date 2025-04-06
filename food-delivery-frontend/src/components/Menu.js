@@ -11,6 +11,7 @@ function Menu({ cart, setCart }) {
     useEffect(() => {
         axios.get(`http://localhost:5000/menu/${restaurantId}`)
             .then((res) => {
+                console.log("Menu API Response:", res.data); // Add this
                 setMenuItems(res.data);
                 if (res.data.length > 0) {
                     setRestaurantName(res.data[0].restaurant_name);
@@ -35,7 +36,7 @@ function Menu({ cart, setCart }) {
     return (
         <div className="menu-container">
             <header className="menu-header">
-                <h2>Menu - {restaurantName || "Restaurant"}</h2>
+                <h2>Menu </h2>
             </header>
 
             <div className="menu-grid">
@@ -43,7 +44,7 @@ function Menu({ cart, setCart }) {
                     <div key={item.id} className="menu-card">
                         <img src={item.image_url} alt={item.dish_name} className="menu-img" />
                         <h3>{item.dish_name}</h3>
-                        <p>₹{item.price}</p>
+                        <p>${item.price}</p>
                         <button className="add-btn" onClick={() => handleAddToCart(item)}>Add to Cart</button>
                     </div>
                 ))}

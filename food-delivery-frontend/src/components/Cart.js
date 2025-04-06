@@ -1,15 +1,32 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import "../styles/Cart.css";
 import { useNavigate } from "react-router-dom";
 
 function Cart({ cart, setCart, isAuthenticated }) {
-  console.log("Current Cart State:", cart);
   const navigate = useNavigate();
+
+  const [address, setAddress] = useState("");
+  const [pincode, setPincode] = useState("");
+  const [state, setState] = useState("");
+  const [editing, setEditing] = useState(false);
+
+  useEffect(() => {
+    const userId = localStorage.getItem("userId");
+    if (userId) {
+      fetch(`http://localhost:5000/user/${userId}`)
+        .then((res) => res.json())
+        .then((data) => {
+          setAddress(data.address || "");
+          setPincode(data.pincode || "");
+          setState(data.state || "");
+        })
+        .catch((err) => console.error("Failed to fetch address:", err));
+    }
+  }, []);
 
   const handleRemove = (index) => {
     const updatedCart = [...cart];
     updatedCart.splice(index, 1);
-    console.log(`Removed item at index ${index}. New cart:`, updatedCart);
     setCart(updatedCart);
   };
 
@@ -23,16 +40,8 @@ function Cart({ cart, setCart, isAuthenticated }) {
 
     if (!userId || cart.length === 0 || !cart[0].restaurant_id) {
       alert("Missing user, cart items, or restaurant.");
-      console.warn("Order not placed. Missing data:", {
-        userId,
-        cart,
-        restaurantId: cart[0]?.restaurant_id,
-      });
       return;
     }
-
-    console.log("Placing order for user:", userId);
-    console.log("Cart items being ordered:", cart.map((item) => item.dish_name));
 
     try {
       const response = await fetch("http://localhost:5000/orders", {
@@ -50,11 +59,8 @@ function Cart({ cart, setCart, isAuthenticated }) {
       const result = await response.json();
 
       if (response.ok) {
-        console.log("Order result:", result);
         alert("Order placed successfully!");
         setCart([]);
-
-        // Navigate to confirmation page with delivery person info
         navigate("/confirmation", {
           state: {
             deliveryPerson: result.deliveryPerson,
@@ -62,11 +68,35 @@ function Cart({ cart, setCart, isAuthenticated }) {
         });
       } else {
         alert("Failed to place order: " + result.error);
-        console.error("Order failed:", result);
       }
     } catch (error) {
       console.error("Order error:", error);
       alert("Error placing order.");
+    }
+  };
+
+  const handleSaveAddress = async () => {
+    const userId = localStorage.getItem("userId");
+
+    try {
+      const response = await fetch(`http://localhost:5000/user/${userId}/address`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ address, pincode, state }),
+      });
+
+      const result = await response.json();
+      if (response.ok) {
+        alert("Address updated successfully!");
+        setEditing(false);
+      } else {
+        alert("Failed to update address.");
+        console.error(result);
+      }
+    } catch (error) {
+      console.error("Address update error:", error);
     }
   };
 
@@ -76,41 +106,47 @@ function Cart({ cart, setCart, isAuthenticated }) {
     <div className="cart-container">
       <h2 className="cart-heading">🛒 Your Cart</h2>
 
+      {/* Address Section */}
+      <div className="address-section">
+        <h3>Delivery Address</h3>
+        {!editing ? (
+          <>
+            <p><strong>Address:</strong> {address}</p>
+            <p><strong>Pincode:</strong> {pincode}</p>
+            <p><strong>State:</strong> {state}</p>
+            <button onClick={() => setEditing(true)} className="edit-btn">Edit Address</button>
+          </>
+        ) : (
+          <>
+            <input value={address} onChange={(e) => setAddress(e.target.value)} placeholder="Address" />
+            <input value={pincode} onChange={(e) => setPincode(e.target.value)} placeholder="Pincode" />
+            <input value={state} onChange={(e) => setState(e.target.value)} placeholder="State" />
+            <button onClick={handleSaveAddress} className="save-btn">Save</button>
+            <button onClick={() => setEditing(false)} className="cancel-btn">Cancel</button>
+          </>
+        )}
+      </div>
+
       {cart.length === 0 ? (
-        <p className="empty-msg">
-          Your cart is empty. Start adding delicious items!
-        </p>
+        <p className="empty-msg">Your cart is empty. Start adding delicious items!</p>
       ) : (
         <>
           <ul className="cart-list">
             {cart.map((item, index) => (
               <li key={index} className="cart-item">
-                <img
-                  src={item.image_url}
-                  alt={item.dish_name}
-                  className="cart-img"
-                />
+                <img src={item.image_url} alt={item.dish_name} className="cart-img" />
                 <div className="cart-info">
                   <h3>{item.dish_name}</h3>
                   <p>₹{item.price}</p>
                 </div>
-                <button
-                  className="remove-btn"
-                  onClick={() => handleRemove(index)}
-                >
-                  Remove
-                </button>
+                <button className="remove-btn" onClick={() => handleRemove(index)}>Remove</button>
               </li>
             ))}
           </ul>
 
           <div className="cart-summary">
             <h3>Total: ₹{total}</h3>
-            <button
-              className="place-order-btn"
-              onClick={handlePlaceOrder}
-              disabled={!isAuthenticated}
-            >
+            <button className="place-order-btn" onClick={handlePlaceOrder} disabled={!isAuthenticated}>
               Place Order
             </button>
           </div>

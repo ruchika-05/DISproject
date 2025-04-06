@@ -15,13 +15,13 @@ import RestaurantLogin from './components/RestaurantLogin';
 import RestaurantDashboard from "./components/RestaurantDashboard";
 import Dishes from "./components/Dishes";
 import Home from './components/Home';
+import RestaurantRegister from './components/RestaurantRegister';
 
 function AppWrapper() {
   const [cart, setCart] = useState([]);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isRestaurantAuthenticated, setIsRestaurantAuthenticated] = useState(false);
   const [refresh, setRefresh] = useState(false);
-
 
   useEffect(() => {
     const userLoggedIn = localStorage.getItem("isAuthenticated") === "true";
@@ -44,24 +44,26 @@ function AppWrapper() {
   const restaurantLogin = () => {
     setIsRestaurantAuthenticated(true);
     localStorage.setItem("isRestaurantAuthenticated", "true");
-    setRefresh(!refresh);
+    setRefresh(prev => !prev);
   };
   
   const restaurantLogout = () => {
     setIsRestaurantAuthenticated(false);
     localStorage.removeItem("isRestaurantAuthenticated");
-    setRefresh(!refresh);
+    setRefresh(prev => !prev);
   };
 
   return (
     <Router>
       <div className="container">
-        <Navbar 
-          isLoggedIn={isAuthenticated}
-          logout={logout}
-          isRestaurantLoggedIn={isRestaurantAuthenticated}
-          restaurantLogout={restaurantLogout}
-        />
+      <Navbar 
+        key={isRestaurantAuthenticated}  // 💥 this forces re-render when value changes
+        isLoggedIn={isAuthenticated}
+        logout={logout}
+        isRestaurantLoggedIn={isRestaurantAuthenticated}
+        restaurantLogout={restaurantLogout}
+      />
+
 
         <Routes>
           <Route path="/" element={<Home />} />
@@ -75,10 +77,18 @@ function AppWrapper() {
           <Route path="/login" element={<Login login={login} />} />
           <Route path="/register" element={<Register />} />
           <Route path="/restaurant/login" element={<RestaurantLogin restaurantLogin={restaurantLogin} />} />
-          <Route path="/restaurant-dashboard" element={<RestaurantDashboard />} />
-          <Route path="/dishes" element={<Dishes />} />
+          <Route
+            path="/restaurant-dashboard"
+            element={
+              <RestaurantDashboard
+                restaurantLogout={restaurantLogout}
+                isRestaurantLoggedIn={isRestaurantAuthenticated}
+              />
+            }
+          />
+          <Route path="/dishes" element={<Dishes cart={cart} setCart={setCart} />} />
+          <Route path="/restaurant/register" element={<RestaurantRegister />} />
         </Routes>
-
       </div>
     </Router>
   );

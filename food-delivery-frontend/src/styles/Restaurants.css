@@ -2,6 +2,7 @@
   padding: 2rem;
   max-width: 1200px;
   margin: auto;
+  padding-top: 80px;
 }
 
 .home-header {
@@ -42,9 +43,12 @@
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: 1.5rem;
+  justify-content: center;
 }
 
 .restaurant-card {
+  width: 220px; /* fixed width */
+  height: 300px;
   background: #fff;
   border-radius: 1rem;
   overflow: hidden;
@@ -53,7 +57,12 @@
   transition: 0.3s;
   text-align: center;
   padding-bottom: 1rem;
+  min-height: 280px; /* keep card size consistent */
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
 }
+
 
 .restaurant-card:hover {
   transform: translateY(-5px);
@@ -69,7 +78,11 @@
 .restaurant-card h3 {
   margin-top: 1rem;
   color: #333;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
+
 
 .no-result {
   text-align: center;
