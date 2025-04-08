@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import heroVideo from './food-video.mp4'; // make sure the file name is correct
+import heroVideo from './food-video.mp4';
 import '../styles/Home.css';
 
 function Home() {
@@ -25,7 +25,6 @@ function Home() {
         </div>
       </div>
 
-      {/* Pink Section */}
       <div className="pink-section">
         <h2>Find Your Favorite Restaurant</h2>
         <p>Your favourite meals delivered hot & fresh!🍕🍟</p>

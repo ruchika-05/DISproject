@@ -44,7 +44,7 @@ function RestaurantDashboard() {
         );
         if (!confirmToggle) return;
 
-        axios.put(`http://localhost:5000/api/dishes/${id}/availability`, {
+        axios.put(`http://localhost:5000/toggle-availability/${id}`, {
             availability: currentAvailability === 1 ? 0 : 1,
         })
             .then(() => fetchDishes())
@@ -55,10 +55,7 @@ function RestaurantDashboard() {
         await axios.put(`http://localhost:5000/orders/${orderId}/status`, { status: newStatus });
         fetchOrders();
     };
-    const allowedTransition = (current, next) => {
-        const orderFlow = ["Preparing", "On the Way", "Delivered"];
-        return orderFlow.indexOf(next) >= orderFlow.indexOf(current);
-      };
+
     return (
         <div className="dashboard-container">
             <section className="section">
@@ -100,25 +97,13 @@ function RestaurantDashboard() {
                                 <p><strong>Status:</strong> {order.status}</p>
                                 <label htmlFor={`status-${order.id}`}>Update Status:</label>
                                 <select
-                                onChange={(e) => {
-                                    const newStatus = e.target.value;
-                                    if (allowedTransition(order.status, newStatus)) {
-                                    updateStatus(order.id, newStatus);
-                                    } else {
-                                    alert("You cannot move back to a previous status.");
-                                    }
-                                }}
-                                value={order.status}
+                                    id={`status-${order.id}`}
+                                    value={order.status}
+                                    onChange={(e) => updateStatus(order.id, e.target.value)}
                                 >
-                                <option value="Preparing" disabled={order.status !== "Preparing" && order.status !== "New"}>
-                                    Preparing
-                                </option>
-                                <option value="On the Way" disabled={order.status === "Delivered"}>
-                                    On the Way
-                                </option>
-                                <option value="Delivered" disabled={order.status !== "On the Way"}>
-                                    Delivered
-                                </option>
+                                    <option value="Preparing">Preparing</option>
+                                    <option value="On the Way">On the Way</option>
+                                    <option value="Delivered">Delivered</option>
                                 </select>
                             </div>
                         ))}

@@ -21,13 +21,10 @@ function RestaurantLogin({ restaurantLogin }) {
 
       const { restaurantId } = response.data;
 
-      // Store restaurant ID locally
       localStorage.setItem('restaurantId', restaurantId);
 
-      // 🔥 Update auth state in AppWrapper
       restaurantLogin();
 
-      // Redirect to restaurant dashboard
       navigate('/restaurant-dashboard');
     } catch (err) {
       console.error(err);

@@ -83,7 +83,7 @@ app.post("/api/login", (req, res) => {
     });
 });
 
-// ✅ GET RESTAURANTS
+// GET RESTAURANTS
 app.get("/restaurants", (req, res) => {
     db.query("SELECT id, name, address, contact_info, image_url FROM restaurants", (err, result) => {
         if (err) res.status(500).json(err);
@@ -91,11 +91,11 @@ app.get("/restaurants", (req, res) => {
     });
 });
 
-// ✅ GET MENU FOR A RESTAURANT
+//GET MENU FOR A RESTAURANT
 app.get("/menu/:restaurantId", (req, res) => {
     const { restaurantId } = req.params;
     db.query(
-        "SELECT id, dish_name, price, availability, image_url FROM menus WHERE restaurant_id = ?",
+        "SELECT id, dish_name, price, availability, image_url FROM menus WHERE restaurant_id = ? && availability=TRUE",
         [restaurantId],
         (err, result) => {
             if (err) res.status(500).json(err);
@@ -104,7 +104,7 @@ app.get("/menu/:restaurantId", (req, res) => {
     );
 });
 
-// ✅ GET SINGLE MENU ITEM
+//GET SINGLE MENU ITEM
 app.get("/menu-item/:menuId", (req, res) => {
     const { menuId } = req.params;
     console.log("Fetching menu item with ID:", menuId);
@@ -123,7 +123,7 @@ app.get("/menu-item/:menuId", (req, res) => {
     });
 });
 
-// ✅ PLACE ORDER
+//PLACE ORDER
 app.post("/orders", (req, res) => {
     const { user_id, restaurant_id, items } = req.body;
     const items_str = JSON.stringify(items);
@@ -150,18 +150,28 @@ app.post("/orders", (req, res) => {
 
 app.get("/orders/:userId", (req, res) => {
     const { userId } = req.params;
+
     const sql = `
-        SELECT o.*, r.name AS restaurant_name 
+        SELECT 
+            o.*, 
+            r.name AS restaurant_name,
+            d.name AS delivery_person_name,
+            d.contact_info AS delivery_person_phone
         FROM orders o 
-        JOIN restaurants r ON o.restaurant_id = r.id 
+        JOIN restaurants r ON o.restaurant_id = r.id
+        LEFT JOIN delivery_personnel d ON o.delivery_person_id = d.id
         WHERE o.user_id = ?
     `;
 
     db.query(sql, [userId], (err, result) => {
-        if (err) return res.status(500).json(err);
+        if (err) {
+            console.error("Error fetching orders with delivery info:", err);
+            return res.status(500).json(err);
+        }
         res.json(result);
     });
 });
+
 
 app.get("/restaurant-orders/:restaurantId", (req, res) => {
     const { restaurantId } = req.params;
@@ -177,7 +187,7 @@ app.get("/restaurant-orders/:restaurantId", (req, res) => {
     });
 });
 
-// ✅ START SERVER
+//START SERVER
 app.listen(port, () => {
     console.log(`Server running on port ${port}`);
 });
@@ -188,7 +198,6 @@ app.post("/restaurant/login", (req, res) => {
         if (err) return res.status(500).json({ message: "Database error", error: err });
         if (result.length === 0) return res.status(401).json({ message: "Invalid credentials" });
 
-        // ✅ Success
         const restaurant = result[0];
         res.json({
             message: "Login successful",
@@ -225,43 +234,57 @@ app.get('/restaurant-menu/:restaurantId', (req, res) => {
 
 app.post("/restaurant/register", (req, res) => {
     const { name, email, password, address, contact_info, image_url } = req.body;
-
+  
     const checkSql = "SELECT * FROM restaurants WHERE email = ?";
     db.query(checkSql, [email], (err, result) => {
-        if (err) return res.status(500).json({ message: "Database error", error: err });
-
-        if (result.length > 0) {
-            return res.status(409).json({ message: "Email already exists" });
+      if (err) {
+        return res.status(500).json({ message: "Database error", error: err });
+      }
+  
+      if (result.length > 0) {
+        return res.status(409).json({ message: "Email already exists" });
+      }
+  
+      const sql = `
+        INSERT INTO restaurants (name, email, password, address, contact_info, image_url)
+        VALUES (?, ?, ?, ?, ?, ?)
+      `;
+  
+      db.query(sql, [name, email, password, address, contact_info, image_url], (err, result) => {
+        if (err) {
+          console.error("Database error during insertion:", err); // <-- Important!
+          return res.status(500).json({ message: "Failed to register", error: err });
         }
-
-        const sql = `
-            INSERT INTO restaurants (name, email, password, address, contact_info, image_url)
-            VALUES (?, ?, ?, ?, ?, ?)
-        `;
-
-        db.query(sql, [name, email, password, address, contact_info, image_url], (err, result) => {
-            if (err) return res.status(500).json({ message: "Failed to register", error: err });
-            res.json({ message: "Restaurant registered successfully", restaurantId: result.insertId });
-        });
+        res.json({ message: "Restaurant registered successfully", restaurantId: result.insertId });
+      });
     });
-});
+  });
+  
 
-app.put('/toggle-availability/:dishId', (req, res) => {
-    const dishId = req.params.dishId;
-    const availability = req.body.availability;
+  app.put('/toggle-availability/:dishId', (req, res) => {
+    const { dishId } = req.params;
+    const { availability } = req.body;
 
     const sql = "UPDATE menus SET availability = ? WHERE id = ?";
     db.query(sql, [availability, dishId], (err, result) => {
-        if (err) return res.status(500).send(err);
-        res.send("Availability updated");
+        if (err) {
+            console.error("Error updating availability:", err);
+            return res.status(500).json({ error: "Failed to update availability" });
+        }
+
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ message: "Dish not found" });
+        }
+
+        res.json({ message: "Availability updated successfully" });
     });
 });
+
 
   
 app.put("/api/orders/:id/deliver", (req, res) => {
     const { id } = req.params;
 
-    // First, get the delivery person ID
     const getDeliverySql = `SELECT delivery_person_id FROM orders WHERE id = ?`;
 
     db.query(getDeliverySql, [id], (err, result) => {
@@ -271,7 +294,6 @@ app.put("/api/orders/:id/deliver", (req, res) => {
 
         const deliveryPersonId = result[0].delivery_person_id;
 
-        // Mark order as delivered
         const updateOrderSql = `
             UPDATE orders SET status = 'Delivered' WHERE id = ?
         `;
@@ -279,7 +301,6 @@ app.put("/api/orders/:id/deliver", (req, res) => {
         db.query(updateOrderSql, [id], (err) => {
             if (err) return res.status(500).json(err);
 
-            // Mark delivery person as available again
             const updatePersonnelSql = `
                 UPDATE delivery_personnel SET available = TRUE WHERE id = ?
             `;
@@ -301,7 +322,6 @@ app.put('/orders/:id/status', (req, res) => {
     }
 
     if (status === "On the Way") {
-        // Assign delivery person now
         const findPersonnelSql = `
             SELECT id, name, contact_info 
             FROM delivery_personnel 
@@ -333,25 +353,67 @@ app.put('/orders/:id/status', (req, res) => {
                 });
             });
         });
+    } else if (status === "Delivered") {
+        // Just update the status and release delivery personnel if assigned
+        const updateQuery = `UPDATE orders SET status = ? WHERE id = ?`;
+        db.query(updateQuery, [status, id], (err) => {
+            if (err) return res.status(500).json({ error: "Failed to update status" });
+
+            const freeDeliveryPersonSql = `
+                UPDATE delivery_personnel 
+                SET available = TRUE 
+                WHERE id = (SELECT delivery_person_id FROM orders WHERE id = ?)
+            `;
+            db.query(freeDeliveryPersonSql, [id], (err) => {
+                if (err) console.log("Could not update delivery personnel availability");
+                res.json({ message: "Order delivered successfully" });
+            });
+        });
     } else {
-        // Just update status for "Preparing" or "Delivered"
-        const query = 'UPDATE orders SET status = ? WHERE id = ?';
-        db.query(query, [status, id], (err, result) => {
-            if (err) return res.status(500).json({ error: 'Failed to update status' });
-            res.json({ message: 'Status updated successfully' });
+        // For "Preparing" or any other valid status
+        const updateQuery = `UPDATE orders SET status = ? WHERE id = ?`;
+        db.query(updateQuery, [status, id], (err) => {
+            if (err) return res.status(500).json({ error: "Failed to update status" });
+            res.json({ message: "Order status updated successfully" });
         });
     }
 });
 
-  app.get('/orders/:id/status', (req, res) => {
+
+
+app.get('/orders/:id/status', (req, res) => {
     const { id } = req.params;
-    const query = 'SELECT status FROM orders WHERE id = ?';
+  
+    const query = `
+      SELECT 
+        o.status,
+        dp.name AS delivery_person_name,
+        dp.contact_info AS delivery_person_contact
+      FROM orders o
+      LEFT JOIN delivery_personnel dp ON o.delivery_person_id = dp.id
+      WHERE o.id = ?
+    `;
+  
     db.query(query, [id], (err, result) => {
       if (err) return res.status(500).json({ error: 'Error fetching status' });
       if (result.length === 0) return res.status(404).json({ error: 'Order not found' });
-      res.json(result[0]);
+  
+      const { status, delivery_person_name, delivery_person_contact } = result[0];
+  
+      const response = {
+        status,
+        deliveryPerson: delivery_person_name
+          ? {
+              name: delivery_person_name,
+              phone: delivery_person_contact,
+            }
+          : null,
+      };
+  
+      res.json(response);
     });
   });
+  
 // Get all menu items with restaurant names
 app.get("/dishes", (req, res) => {
     const sql = `
@@ -377,8 +439,6 @@ app.get("/user/:id", (req, res) => {
       res.json(results[0]);
     });
   });
-  
-  // Update user address
   app.put("/user/:id/address", (req, res) => {
     const { id } = req.params;
     const { address, pincode, state } = req.body;

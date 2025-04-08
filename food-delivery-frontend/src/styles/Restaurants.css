@@ -47,7 +47,7 @@
 }
 
 .restaurant-card {
-  width: 220px; /* fixed width */
+  width: 220px;
   height: 300px;
   background: #fff;
   border-radius: 1rem;
@@ -57,7 +57,7 @@
   transition: 0.3s;
   text-align: center;
   padding-bottom: 1rem;
-  min-height: 280px; /* keep card size consistent */
+  min-height: 280px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;

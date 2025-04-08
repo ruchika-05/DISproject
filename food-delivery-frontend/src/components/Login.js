@@ -26,7 +26,7 @@ function Login({ login }) {
 
       if (result.success && result.user) {
         localStorage.setItem("userId", result.user.id);
-        localStorage.setItem("userName", result.user.name); // optional
+        localStorage.setItem("userName", result.user.name);
         login(); // update auth state
         alert("Login successful!");
         navigate("/");

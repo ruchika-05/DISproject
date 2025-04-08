@@ -18,12 +18,6 @@ const ConfirmationPage = () => {
 
       <p className="status">Your food is on its way! 🍔🍟</p>
 
-      <div className="delivery-details">
-        <h3>Delivery Personnel Details</h3>
-        <p><strong>Name:</strong> John Doe</p>
-        <p><strong>Contact:</strong> 111-222-3333</p>
-      </div>
-
       <div className="button-wrapper">
         <button className="back-btn" onClick={handleBackHome}>
           Back to Home

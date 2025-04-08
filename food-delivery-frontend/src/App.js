@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-
 import Restaurants from "./components/Restaurants";
 import Menu from "./components/Menu";
 import Cart from "./components/Cart";
@@ -8,7 +7,6 @@ import Orders from "./components/Orders";
 import Login from "./components/Login";
 import MenuItemDetails from "./components/MenuItemDetails";
 import Navbar from "./components/Navbar";
-import "./App.css";
 import Register from "./components/Register";
 import Confirmation from "./components/Confirmation";
 import RestaurantLogin from './components/RestaurantLogin';

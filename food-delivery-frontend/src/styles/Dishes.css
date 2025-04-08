@@ -16,7 +16,7 @@
 
 .dish-card {
   width: 200px;
-  height: 320px; /* slightly increased height to avoid overflow */
+  height: 320px; 
   border: 1px solid #ddd;
   padding: 10px;
   border-radius: 8px;

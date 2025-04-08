@@ -12,7 +12,7 @@ function Cart({ cart, setCart, isAuthenticated }) {
 
   useEffect(() => {
     const userId = localStorage.getItem("userId");
-    if (userId) {
+    if (isAuthenticated && userId) {
       fetch(`http://localhost:5000/user/${userId}`)
         .then((res) => res.json())
         .then((data) => {
@@ -21,8 +21,12 @@ function Cart({ cart, setCart, isAuthenticated }) {
           setState(data.state || "");
         })
         .catch((err) => console.error("Failed to fetch address:", err));
+    } else {
+      setAddress("");
+      setPincode("");
+      setState("");
     }
-  }, []);
+  }, [isAuthenticated]);
 
   const handleRemove = (index) => {
     const updatedCart = [...cart];
@@ -106,26 +110,27 @@ function Cart({ cart, setCart, isAuthenticated }) {
     <div className="cart-container">
       <h2 className="cart-heading">🛒 Your Cart</h2>
 
-      {/* Address Section */}
-      <div className="address-section">
-        <h3>Delivery Address</h3>
-        {!editing ? (
-          <>
-            <p><strong>Address:</strong> {address}</p>
-            <p><strong>Pincode:</strong> {pincode}</p>
-            <p><strong>State:</strong> {state}</p>
-            <button onClick={() => setEditing(true)} className="edit-btn">Edit Address</button>
-          </>
-        ) : (
-          <>
-            <input value={address} onChange={(e) => setAddress(e.target.value)} placeholder="Address" />
-            <input value={pincode} onChange={(e) => setPincode(e.target.value)} placeholder="Pincode" />
-            <input value={state} onChange={(e) => setState(e.target.value)} placeholder="State" />
-            <button onClick={handleSaveAddress} className="save-btn">Save</button>
-            <button onClick={() => setEditing(false)} className="cancel-btn">Cancel</button>
-          </>
-        )}
-      </div>
+      {isAuthenticated && (
+        <div className="address-section">
+          <h3>Delivery Address</h3>
+          {!editing ? (
+            <>
+              <p><strong>Address:</strong> {address}</p>
+              <p><strong>Pincode:</strong> {pincode}</p>
+              <p><strong>State:</strong> {state}</p>
+              <button onClick={() => setEditing(true)} className="edit-btn">Edit Address</button>
+            </>
+          ) : (
+            <>
+              <input value={address} onChange={(e) => setAddress(e.target.value)} placeholder="Address" />
+              <input value={pincode} onChange={(e) => setPincode(e.target.value)} placeholder="Pincode" />
+              <input value={state} onChange={(e) => setState(e.target.value)} placeholder="State" />
+              <button onClick={handleSaveAddress} className="save-btn">Save</button>
+              <button onClick={() => setEditing(false)} className="cancel-btn">Cancel</button>
+            </>
+          )}
+        </div>
+      )}
 
       {cart.length === 0 ? (
         <p className="empty-msg">Your cart is empty. Start adding delicious items!</p>

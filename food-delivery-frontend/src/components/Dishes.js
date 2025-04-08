@@ -17,7 +17,7 @@ function Dishes({ cart, setCart }) {
   );
 
   const handleAddToCart = (item) => {
-    const itemWithRestaurant = { ...item, restaurant_id: item.restaurant_id }; // assuming restaurant_id is included
+    const itemWithRestaurant = { ...item, restaurant_id: item.restaurant_id };
 
     if (cart.length > 0 && cart[0].restaurant_id !== item.restaurant_id) {
       alert("You can order from only one restaurant at a time.");

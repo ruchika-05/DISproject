@@ -11,7 +11,7 @@ function Menu({ cart, setCart }) {
     useEffect(() => {
         axios.get(`http://localhost:5000/menu/${restaurantId}`)
             .then((res) => {
-                console.log("Menu API Response:", res.data); // Add this
+                console.log("Menu API Response:", res.data);
                 setMenuItems(res.data);
                 if (res.data.length > 0) {
                     setRestaurantName(res.data[0].restaurant_name);

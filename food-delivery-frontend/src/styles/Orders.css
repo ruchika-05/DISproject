@@ -71,3 +71,14 @@
   background-color: #fef3c7;
   color: #92400e;
 }
+.delivery-info {
+  margin-top: 10px;
+  background-color: #f7f7f7;
+  padding: 8px 12px;
+  border-radius: 8px;
+  border-left: 4px solid #ff6f61;
+}
+
+.status.on\ the\ way {
+  color: orange;
+}

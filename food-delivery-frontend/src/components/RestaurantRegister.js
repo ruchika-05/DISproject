@@ -22,17 +22,17 @@ const RestaurantRegister = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setMessage(""); // Clear previous messages
-  
+    setMessage(''); // Clear previous messages
+
     try {
-      const res = await fetch('/restaurant/register', {
+      const res = await fetch('http://localhost:5000/restaurant/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData)
       });
-  
+
       const data = await res.json();
-  
+
       if (res.ok) {
         setMessage(data.message || 'Registered successfully!');
         setFormData({
@@ -44,8 +44,13 @@ const RestaurantRegister = () => {
           image_url: ''
         });
       } else {
-        setMessage(data.error || data.message || 'Registration failed. Please check your inputs.');
+        const readableMessage = typeof data.message === 'object'
+          ? data.message.sqlMessage || 'Something went wrong.'
+          : data.message;
+
+        setMessage(readableMessage);
       }
+
     } catch (err) {
       console.error(err);
       setMessage('Server error. Please try again later.');
@@ -105,7 +110,7 @@ const RestaurantRegister = () => {
         />
         <button type="submit">Register</button>
       </form>
-      {message && <p className="register-message">{message}</p>}
+      {message && <p className="register-message">{String(message)}</p>}
     </div>
   );
 };
