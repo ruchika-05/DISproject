@@ -2,7 +2,6 @@ const express = require("express");
 const mysql = require("mysql2");
 const cors = require("cors");
 const bodyParser = require("body-parser");
-
 const app = express();
 app.use(cors());
 app.use(express.json());
@@ -28,22 +27,21 @@ db.connect(err => {
 // USER REGISTRATION
 app.post("/api/register", (req, res) => {
     const { name, email, phone, password, address, pincode, state } = req.body;
-  
-    // Basic validation (before hitting DB)
-    if (!name || !email || !phone || !password || !address || !pincode || !state) {
-      return res.status(400).json({ success: false, message: "Please fill in all required fields." });
+
+    if (!name||!email||!phone||!password||!address||!pincode||!state) {
+      return res.status(400).json({success: false, message:"Please fill in all required fields." });
     }
   
     if (phone.length < 10) {
-      return res.status(400).json({ success: false, message: "Phone number must be at least 10 digits." });
+      return res.status(400).json({success: false, message:"Phone number must be at least 10 digits." });
     }
   
     if (password.length < 6) {
-      return res.status(400).json({ success: false, message: "Password must be at least 6 characters." });
+      return res.status(400).json({ success: false, message:"Password must be at least 6 characters." });
     }
   
     const sql =
-      "INSERT INTO users (name, email, phone, password, address, pincode, state) VALUES (?, ?, ?, ?, ?, ?, ?)";
+      "INSERT INTO users (name,email,phone,password,address,pincode,state) VALUES (?, ?, ?, ?, ?, ?, ?)";
   
     db.query(sql, [name, email, phone, password, address, pincode, state], (err, result) => {
       if (err) {
@@ -59,7 +57,6 @@ app.post("/api/register", (req, res) => {
       res.json({ success: true, message: "Registration successful!" });
     });
   });
-  
 
 // LOGIN
 app.post("/api/login", (req, res) => {
@@ -258,9 +255,7 @@ app.post("/restaurant/register", (req, res) => {
         res.json({ message: "Restaurant registered successfully", restaurantId: result.insertId });
       });
     });
-  });
-  
-
+});
   app.put('/toggle-availability/:dishId', (req, res) => {
     const { dishId } = req.params;
     const { availability } = req.body;
@@ -279,8 +274,6 @@ app.post("/restaurant/register", (req, res) => {
         res.json({ message: "Availability updated successfully" });
     });
 });
-
-
   
 app.put("/api/orders/:id/deliver", (req, res) => {
     const { id } = req.params;
@@ -339,7 +332,7 @@ app.put('/orders/:id/status', (req, res) => {
             const delivery_person_id = deliveryPerson.id;
 
             const updateOrderSql = `
-                UPDATE orders SET status = ?, delivery_person_id = ? WHERE id = ?
+                UPDATE orders SET status=?, delivery_person_id = ? WHERE id = ?
             `;
             db.query(updateOrderSql, [status, delivery_person_id, id], (err) => {
                 if (err) return res.status(500).json({ error: "Failed to update status" });
@@ -370,7 +363,6 @@ app.put('/orders/:id/status', (req, res) => {
             });
         });
     } else {
-        // For "Preparing" or any other valid status
         const updateQuery = `UPDATE orders SET status = ? WHERE id = ?`;
         db.query(updateQuery, [status, id], (err) => {
             if (err) return res.status(500).json({ error: "Failed to update status" });
@@ -379,11 +371,8 @@ app.put('/orders/:id/status', (req, res) => {
     }
 });
 
-
-
 app.get('/orders/:id/status', (req, res) => {
     const { id } = req.params;
-  
     const query = `
       SELECT 
         o.status,
@@ -412,7 +401,7 @@ app.get('/orders/:id/status', (req, res) => {
   
       res.json(response);
     });
-  });
+});
   
 // Get all menu items with restaurant names
 app.get("/dishes", (req, res) => {
@@ -420,6 +409,7 @@ app.get("/dishes", (req, res) => {
       SELECT m.*, r.name AS restaurant_name
       FROM menus m
       JOIN restaurants r ON m.restaurant_id = r.id
+      WHERE m. availability=TRUE;
     `;
   
     db.query(sql, (err, result) => {
@@ -429,7 +419,7 @@ app.get("/dishes", (req, res) => {
       }
       res.json(result);
     });
-  });
+});
   // Get user details
 app.get("/user/:id", (req, res) => {
     const { id } = req.params;
@@ -438,7 +428,7 @@ app.get("/user/:id", (req, res) => {
       if (results.length === 0) return res.status(404).json({ error: "User not found" });
       res.json(results[0]);
     });
-  });
+});
   app.put("/user/:id/address", (req, res) => {
     const { id } = req.params;
     const { address, pincode, state } = req.body;
@@ -450,6 +440,4 @@ app.get("/user/:id", (req, res) => {
         res.json({ message: "Address updated successfully" });
       }
     );
-  });
-  
-  
+});

@@ -55,7 +55,7 @@ function AppWrapper() {
     <Router>
       <div className="container">
       <Navbar 
-        key={isRestaurantAuthenticated}  // 💥 this forces re-render when value changes
+        key={isRestaurantAuthenticated} 
         isLoggedIn={isAuthenticated}
         logout={logout}
         isRestaurantLoggedIn={isRestaurantAuthenticated}

@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import heroVideo from './food-video.mp4';
+import foodVideo from './food-video.mp4';
 import '../styles/Home.css';
 
 function Home() {
@@ -8,10 +8,9 @@ function Home() {
 
   return (
     <div className="home-page">
-      {/* Hero Section with Video */}
       <div className="hero-container">
         <video autoPlay muted loop className="hero-video">
-          <source src={heroVideo} type="video/mp4" />
+          <source src={foodVideo} type="video/mp4" />
           Your browser does not support the video tag.
         </video>
 
@@ -31,7 +30,6 @@ function Home() {
         <button className='restaurant-btn' onClick={()=> navigate('/restaurants')}>Browse Restaurants</button>
       </div>
 
-      {/* Features Section */}
       <section className="features">
         <div className="feature-card">🚀 Super Fast Delivery</div>
         <div className="feature-card">🍽️ Top Rated Restaurants</div>
@@ -39,7 +37,6 @@ function Home() {
         <div className="feature-card">🍕 Great Food, Always!</div>
       </section>
 
-      {/* Popular Picks */}
       <section className="popular-section">
         <h2>Popular Picks</h2>
         <div className="carousel">
@@ -69,7 +66,6 @@ function Home() {
         </div>
       </section>
 
-      {/* Footer */}
       <footer className="footer">
         © 2025 FoodExpress. All Rights Reserved.
       </footer>
