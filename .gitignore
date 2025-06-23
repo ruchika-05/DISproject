@@ -1,0 +1,25 @@
+# Node.js dependencies
+node_modules/
+package-lock.json
+yarn.lock
+
+# Environment variables
+.env
+.env.local
+
+# Build folders
+build/
+dist/
+
+# IDE/Editor files
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# OS/System files
+.DS_Store
+Thumbs.db
