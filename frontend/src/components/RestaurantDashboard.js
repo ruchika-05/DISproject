@@ -25,7 +25,7 @@ function RestaurantDashboard() {
 
     const fetchOrders = () => {
         if (!restaurantId) return;
-        axios.get(`http://localhost:5000/restaurant-orders/${restaurantId}`)
+        axios.get(`${API_BASE_URL}/restaurant-orders/${restaurantId}`)
             .then((res) => setOrders(res.data))
             .catch((err) => console.error("Error fetching orders", err));
     };
@@ -45,7 +45,7 @@ function RestaurantDashboard() {
         );
         if (!confirmToggle) return;
 
-        axios.put(`http://localhost:5000/toggle-availability/${id}`, {
+        axios.put(`${API_BASE_URL}/toggle-availability/${id}`, {
             availability: currentAvailability === 1 ? 0 : 1,
         })
             .then(() => fetchDishes())
@@ -53,7 +53,7 @@ function RestaurantDashboard() {
     };
 
     const updateStatus = async (orderId, newStatus) => {
-        await axios.put(`http://localhost:5000/orders/${orderId}/status`, { status: newStatus });
+        await axios.put(`${API_BASE_URL}/orders/${orderId}/status`, { status: newStatus });
         fetchOrders();
     };
 

@@ -49,7 +49,7 @@ function Cart({ cart, setCart, isAuthenticated }) {
     }
 
     try {
-      const response = await fetch("http://localhost:5000/orders", {
+      const response = await fetch(`${API_BASE_URL}/orders`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -84,7 +84,7 @@ function Cart({ cart, setCart, isAuthenticated }) {
     const userId = localStorage.getItem("userId");
 
     try {
-      const response = await fetch(`http://localhost:5000/user/${userId}/address`, {
+      const response = await fetch(`${API_BASE_URL}/user/${userId}/address`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
