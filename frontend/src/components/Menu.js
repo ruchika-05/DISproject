@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { API_BASE_URL } from './config';
 import { useParams } from "react-router-dom";
 import axios from "axios";
 import "../styles/Menu.css";
@@ -9,7 +10,7 @@ function Menu({ cart, setCart }) {
     const [restaurantName, setRestaurantName] = useState("");
 
     useEffect(() => {
-        axios.get(`http://localhost:5000/menu/${restaurantId}`)
+        axios.get(`${API_BASE_URL}/menu/${restaurantId}`)
             .then((res) => {
                 console.log("Menu API Response:", res.data);
                 setMenuItems(res.data);

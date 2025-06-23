@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { API_BASE_URL } from './config';
 import axios from 'axios';
 import '../styles/RestaurantLogin.css';
 import { useNavigate,Link } from 'react-router-dom';
@@ -14,7 +15,7 @@ function RestaurantLogin({ restaurantLogin }) {
     setError('');
 
     try {
-      const response = await axios.post('http://localhost:5000/restaurant/login', {
+      const response = await axios.post(`${API_BASE_URL}/login`, {
         email,
         password,
       });

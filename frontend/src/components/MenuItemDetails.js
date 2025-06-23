@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { API_BASE_URL } from './config';
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
 import '../styles/MenuItemDetails.css';
@@ -8,7 +9,7 @@ function MenuItemDetails({ cart, setCart }) {
     const [item, setItem] = useState(null);
 
     useEffect(() => {
-        axios.get(`http://localhost:5000/menu-item/${menuId}`)
+        axios.get(`${API_BASE_URL}/menu-item/${menuId}`)
             .then(response => setItem(response.data))
             .catch(error => console.error('Failed to fetch menu item:', error));
     }, [menuId]);

@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { API_BASE_URL } from './config';
 import axios from 'axios';
 import '../styles/Orders.css';
 
@@ -9,7 +10,7 @@ function Orders() {
         const userId = localStorage.getItem("userId");
         if (!userId) return;
 
-        axios.get(`http://localhost:5000/orders/${userId}`)
+        axios.get(`${API_BASE_URL}/${userId}`)
             .then((res) => {
                 setOrders(res.data);
             })

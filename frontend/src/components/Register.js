@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { API_BASE_URL } from './config';
 import { useNavigate } from "react-router-dom";
 import "../styles/Register.css";
 
@@ -22,7 +23,7 @@ function Register() {
     e.preventDefault();
 
     try {
-      const res = await fetch("http://localhost:5000/api/register", {
+      const res = await fetch(`${API_BASE_URL}/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(form),

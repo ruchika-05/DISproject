@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { API_BASE_URL } from './config';
 import "../styles/Cart.css";
 import { useNavigate } from "react-router-dom";
 
@@ -13,7 +14,7 @@ function Cart({ cart, setCart, isAuthenticated }) {
   useEffect(() => {
     const userId = localStorage.getItem("userId");
     if (isAuthenticated && userId) {
-      fetch(`http://localhost:5000/user/${userId}`)
+      fetch(`${API_BASE_URL}/${userId}`)
         .then((res) => res.json())
         .then((data) => {
           setAddress(data.address || "");

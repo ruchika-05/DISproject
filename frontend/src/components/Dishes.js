@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { API_BASE_URL } from './config';
 import axios from "axios";
 import "../styles/Dishes.css";
 
@@ -7,7 +8,7 @@ function Dishes({ cart, setCart }) {
   const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
-    axios.get("http://localhost:5000/dishes")
+    axios.get(`${API_BASE_URL}/dishes`)
       .then((res) => setDishes(res.data))
       .catch((err) => console.error("Error fetching dishes:", err));
   }, []);

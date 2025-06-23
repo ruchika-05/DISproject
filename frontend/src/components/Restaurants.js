@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { API_BASE_URL } from './config';
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import "../styles/Restaurants.css";
@@ -9,7 +10,7 @@ function Restaurants() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    axios.get("http://localhost:5000/restaurants")
+    axios.get(`${API_BASE_URL}/restaurants`)
       .then(response => setRestaurants(response.data))
       .catch(error => console.error("Error fetching restaurants:", error));
   }, []);

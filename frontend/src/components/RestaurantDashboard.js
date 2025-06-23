@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { API_BASE_URL } from './config';
 import axios from 'axios';
 import '../styles/RestaurantDashboard.css';
 import AddDish from './AddDish';
@@ -17,7 +18,7 @@ function RestaurantDashboard() {
 
     const fetchDishes = () => {
         if (!restaurantId) return;
-        axios.get(`http://localhost:5000/restaurant-menu/${restaurantId}`)
+        axios.get(`${API_BASE_URL}/restaurant-menu/${restaurantId}`)
             .then((res) => setDishes(res.data))
             .catch((err) => console.error("Error fetching dishes", err));
     };

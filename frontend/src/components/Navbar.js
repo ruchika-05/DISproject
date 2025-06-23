@@ -1,4 +1,5 @@
 import React from "react";
+import { API_BASE_URL } from './config';
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import {
   FaShoppingCart,
