@@ -8,7 +8,7 @@ app.use(cors());
 app.use(express.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-const port = 5000;
+const port = process.env.PORT || 5000;
 
 const db = mysql.createConnection({
     host: process.env.DB_HOST,
@@ -25,6 +25,9 @@ db.connect(err => {
     }
 });
 
+app.get("/", (req, res) => {
+  res.send("Backend is live!");
+});
 // USER REGISTRATION
 app.post("/api/register", (req, res) => {
     const { name, email, phone, password, address, pincode, state } = req.body;
