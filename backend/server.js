@@ -15,7 +15,6 @@ const db = mysql.createConnection({
     user: process.env.DB_USER,
     password: process.env.DB_PASSWORD, // Now securely loaded from .env
     database: process.env.DB_NAME,
-    port:process.env.PORT;
 });
 
 db.connect(err => {
