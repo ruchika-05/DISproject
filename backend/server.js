@@ -4,7 +4,14 @@ const mysql = require("mysql2");
 const cors = require("cors");
 const bodyParser = require("body-parser");
 const app = express();
-app.use(cors({ origin: "https://food-delivery-eight-bice.vercel.app" }));
+app.use(cors({
+  origin: [
+    "https://food-delivery-eight-bice.vercel.app",
+    "http://localhost:3000" // For local testing
+  ],
+  methods: "GET,POST,PUT,DELETE",
+  credentials: true
+}));
 app.use(express.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
