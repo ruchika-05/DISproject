@@ -2,10 +2,9 @@ require('dotenv').config(); // Add at the TOP of the file
 const express = require("express");
 const mysql = require("mysql2");
 const cors = require("cors");
-app.use(cors({ origin: "https://food-delivery-eight-bice.vercel.app" }));
 const bodyParser = require("body-parser");
 const app = express();
-app.use(cors());
+app.use(cors({ origin: "https://food-delivery-eight-bice.vercel.app" }));
 app.use(express.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
