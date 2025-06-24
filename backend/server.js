@@ -8,12 +8,14 @@ app.use(cors());
 app.use(express.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
+const port = process.env.PORT || 5000;
+
 const db = mysql.createConnection({
     host: process.env.DB_HOST,
     user: process.env.DB_USER,
     password: process.env.DB_PASSWORD, // Now securely loaded from .env
     database: process.env.DB_NAME,
-    port:process.env.PORT
+    port:process.env.PORT;
 });
 
 db.connect(err => {
