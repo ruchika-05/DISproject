@@ -86,11 +86,22 @@ app.post("/api/login", (req, res) => {
 
 // GET RESTAURANTS
 app.get("/restaurants", (req, res) => {
-    db.query("SELECT id, name, address, contact_info, image_url FROM restaurants", (err, result) => {
-        if (err) res.status(500).json(err);
-        else res.json(result);
-    });
+  db.query(
+    "SELECT id, name, address, contact_info, image_url FROM restaurants",
+    (err, result) => {
+      if (err) {
+        console.error("Database error in /restaurants route:", err);  // Log to Railway console
+        return res.status(500).json({
+          error: "Database query failed",
+          message: err.message
+        });
+      }
+
+      res.status(200).json(result);
+    }
+  );
 });
+
 
 //GET MENU FOR A RESTAURANT
 app.get("/menu/:restaurantId", (req, res) => {
