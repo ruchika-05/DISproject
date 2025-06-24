@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import { API_BASE_URL } from './config';
+import { API_BASE_URL } from './components/config';
 import Restaurants from "./components/Restaurants";
 import Menu from "./components/Menu";
 import Cart from "./components/Cart";
