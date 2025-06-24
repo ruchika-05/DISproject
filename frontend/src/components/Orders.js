@@ -10,7 +10,7 @@ function Orders() {
         const userId = localStorage.getItem("userId");
         if (!userId) return;
 
-        axios.get(`${API_BASE_URL}/${userId}`)
+        axios.get(`${API_BASE_URL}/orders/${userId}`)
             .then((res) => {
                 setOrders(res.data);
             })
