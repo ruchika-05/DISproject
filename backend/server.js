@@ -20,6 +20,7 @@ const db = mysql.createConnection({
 db.connect(err => {
     if (err) {
         console.error("DB Connection Error:", err);
+        process.exit(1);
     } else {
         console.log("Database connected!");
     }
