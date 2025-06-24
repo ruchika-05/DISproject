@@ -30,7 +30,7 @@ app.get("/", (req, res) => {
   res.send("Backend is live!");
 });
 // USER REGISTRATION
-app.post("/api/register", (req, res) => {
+app.post("/register", (req, res) => {
     const { name, email, phone, password, address, pincode, state } = req.body;
 
     if (!name||!email||!phone||!password||!address||!pincode||!state) {
@@ -64,7 +64,7 @@ app.post("/api/register", (req, res) => {
   });
 
 // LOGIN
-app.post("/api/login", (req, res) => {
+app.post("/login", (req, res) => {
     let { email, password } = req.body;
 
     email = email.trim();
@@ -291,7 +291,7 @@ app.post("/restaurant/register", (req, res) => {
     });
 });
   
-app.put("/api/orders/:id/deliver", (req, res) => {
+app.put("/orders/:id/deliver", (req, res) => {
     const { id } = req.params;
 
     const getDeliverySql = `SELECT delivery_person_id FROM orders WHERE id = ?`;
