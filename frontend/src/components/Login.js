@@ -13,7 +13,6 @@ function Login({ login }) {
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    console.log("Attempting login with:", form);
 
     try {
       const res = await fetch(`${API_BASE_URL}/login`, {
@@ -21,6 +20,12 @@ function Login({ login }) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(form),
       });
+
+      if (!res.ok) {
+        const text = await res.text();
+        console.error("Non-JSON error response:", text);
+        throw new Error(`HTTP error! status: ${res.status}`);
+      }
 
       const result = await res.json();
       console.log("Login response:", result);
