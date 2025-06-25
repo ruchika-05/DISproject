@@ -4,22 +4,24 @@ const mysql = require("mysql2");
 const cors = require("cors");
 const bodyParser = require("body-parser");
 const app = express();
-app.use(cors({
+const corsOptions = {
   origin: function (origin, callback) {
     if (
-      !origin || // allow non-browser tools like Postman
-      origin === "http://localhost:3000" ||
-      origin === "https://food-delivery-eight-bice.vercel.app" ||
-      origin.endsWith(".vercel.app")
+      !origin || // allow requests from tools like Postman
+      origin === "http://localhost:3000" || // local dev
+      origin === "https://food-delivery-eight-bice.vercel.app" || // your frontend
+      origin.endsWith(".vercel.app") // Vercel preview deployments
     ) {
       callback(null, true);
     } else {
       callback(new Error("Not allowed by CORS"));
     }
   },
-  methods: "GET,POST,PUT,DELETE",
-  credentials: true
-}));
+  credentials: true,
+  methods: "GET,POST,PUT,DELETE"
+};
+
+app.use(cors(corsOptions));
 app.use(express.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
