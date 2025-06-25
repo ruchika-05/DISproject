@@ -5,10 +5,18 @@ const cors = require("cors");
 const bodyParser = require("body-parser");
 const app = express();
 app.use(cors({
-  origin: [
-    "https://food-delivery-eight-bice.vercel.app",
-    "http://localhost:3000" // For local testing
-  ],
+  origin: function (origin, callback) {
+    if (
+      !origin || // allow non-browser tools like Postman
+      origin === "http://localhost:3000" ||
+      origin === "https://food-delivery-eight-bice.vercel.app" ||
+      origin.endsWith(".vercel.app")
+    ) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
   methods: "GET,POST,PUT,DELETE",
   credentials: true
 }));
