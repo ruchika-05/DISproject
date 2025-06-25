@@ -37,6 +37,14 @@ const pool = mysql.createPool({
 
 const db=pool.promise();
 
+pool.getConnection((err, connection) => {
+  if (err) {
+    console.error("DB Connection Error:", err);
+  } else {
+    console.log("Database connected!");
+    connection.release();
+  }
+});
 app.get("/", (req, res) => {
   res.send("Backend is live!");
 });
@@ -204,10 +212,7 @@ app.get("/restaurant-orders/:restaurantId", (req, res) => {
     });
 });
 
-//START SERVER
-app.listen(port, () => {
-    console.log(`Server running on port ${port}`);
-});
+
 app.post("/restaurant/login", (req, res) => {
     const { email, password } = req.body;
     const sql = "SELECT * FROM restaurants WHERE email = ? AND password = ?";
@@ -429,7 +434,7 @@ app.get("/dishes", (req, res) => {
       SELECT m.*, r.name AS restaurant_name
       FROM menus m
       JOIN restaurants r ON m.restaurant_id = r.id
-      WHERE m. availability=TRUE;
+      WHERE m.availability=TRUE;
     `;
   
     db.query(sql, (err, result) => {
@@ -460,4 +465,9 @@ app.get("/user/:id", (req, res) => {
         res.json({ message: "Address updated successfully" });
       }
     );
+});
+
+//START SERVER
+app.listen(port, () => {
+    console.log(`Server running on port ${port}`);
 });
