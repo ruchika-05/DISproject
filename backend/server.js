@@ -49,59 +49,53 @@ app.get("/", (req, res) => {
   res.send("Backend is live!");
 });
 // USER REGISTRATION
-app.post("/register", (req, res) => {
-    const { name, email, phone, password, address, pincode, state } = req.body;
+app.post("/register", async (req, res) => {
+  const { name, email, phone, password, address, pincode, state } = req.body;
 
-    if (!name||!email||!phone||!password||!address||!pincode||!state) {
-      return res.status(400).json({success: false, message:"Please fill in all required fields." });
+  if (!name || !email || !phone || !password || !address || !pincode || !state) {
+    return res.status(400).json({ success: false, message: "Please fill in all required fields." });
+  }
+
+  if (phone.length < 10) {
+    return res.status(400).json({ success: false, message: "Phone number must be at least 10 digits." });
+  }
+
+  if (password.length < 6) {
+    return res.status(400).json({ success: false, message: "Password must be at least 6 characters." });
+  }
+
+  try {
+    const [result] = await db.query(
+      "INSERT INTO users (name,email,phone,password,address,pincode,state) VALUES (?, ?, ?, ?, ?, ?, ?)",
+      [name, email, phone, password, address, pincode, state]
+    );
+    res.json({ success: true, message: "Registration successful!" });
+  } catch (err) {
+    console.error("Registration error:", err);
+    if (err.code === "ER_DUP_ENTRY") {
+      return res.status(409).json({ success: false, message: "Email already exists." });
     }
-  
-    if (phone.length < 10) {
-      return res.status(400).json({success: false, message:"Phone number must be at least 10 digits." });
-    }
-  
-    if (password.length < 6) {
-      return res.status(400).json({ success: false, message:"Password must be at least 6 characters." });
-    }
-  
-    const sql =
-      "INSERT INTO users (name,email,phone,password,address,pincode,state) VALUES (?, ?, ?, ?, ?, ?, ?)";
-  
-    db.query(sql, [name, email, phone, password, address, pincode, state], (err, result) => {
-      if (err) {
-        console.error("Registration error:", err);
-  
-        if (err.code === "ER_DUP_ENTRY") {
-          return res.status(409).json({ success: false, message: "Email already exists." });
-        }
-  
-        return res.status(500).json({ success: false, message: "Server error. Please try again later." });
-      }
-  
-      res.json({ success: true, message: "Registration successful!" });
-    });
-  });
+    res.status(500).json({ success: false, message: "Server error. Please try again later." });
+  }
+});
 
 // LOGIN
-app.post("/login", (req, res) => {
-    let { email, password } = req.body;
+app.post("/login", async (req, res) => {
+  let { email, password } = req.body;
+  email = email.trim();
+  password = password.trim();
 
-    email = email.trim();
-    password = password.trim();
-
-    const sql = "SELECT * FROM users WHERE email = ? AND password = ?";
-    db.query(sql, [email, password], (err, results) => {
-        if (err) {
-            console.error("Login error:", err);
-            return res.status(500).json({ success: false, message: "Server error" });
-        }
-
-        if (results.length > 0) {
-            return res.json({ success: true, user: results[0] });
-        } else {
-            return res.json({ success: false, message: "Invalid email or password" });
-        }
-    });
+  try {
+    const [results] = await db.query("SELECT * FROM users WHERE email = ? AND password = ?", [email, password]);
+    if (results.length > 0) {
+      return res.json({ success: true, user: results[0] });
+    } else {
+      return res.json({ success: false, message: "Invalid email or password" });
+    }
+  } catch (err) {
+    console.error("Login error:", err);
+    return res.status(500).json({ success: false, message: "Server error" });
+  }
 });
 
 // GET RESTAURANTS
@@ -117,288 +111,258 @@ app.get("/restaurants", async (req, res) => {
 
 
 //GET MENU FOR A RESTAURANT
-app.get("/menu/:restaurantId", (req, res) => {
-    const { restaurantId } = req.params;
-    db.query(
-        "SELECT id, dish_name, price, availability, image_url FROM menus WHERE restaurant_id = ? && availability=TRUE",
-        [restaurantId],
-        (err, result) => {
-            if (err) res.status(500).json(err);
-            else res.json(result);
-        }
+app.get("/menu/:restaurantId", async (req, res) => {
+  const { restaurantId } = req.params;
+  try {
+    const [rows] = await db.query(
+      "SELECT id, dish_name, price, availability, image_url FROM menus WHERE restaurant_id = ? AND availability=TRUE",
+      [restaurantId]
     );
+    res.json(rows);
+  } catch (err) {
+    res.status(500).json(err);
+  }
 });
 
 //GET SINGLE MENU ITEM
-app.get("/menu-item/:menuId", (req, res) => {
-    const { menuId } = req.params;
-    console.log("Fetching menu item with ID:", menuId);
-
-    db.query("SELECT * FROM menus WHERE id = ?", [menuId], (err, result) => {
-        if (err) {
-            console.error("Database Error:", err);
-            return res.status(500).json({ error: "Database error" });
-        }
-        if (result.length === 0) {
-            console.log("Menu item not found for ID:", menuId);
-            return res.status(404).json({ message: "Menu item not found" });
-        }
-        console.log("Menu item found:", result[0]);
-        res.json(result[0]);
-    });
+app.get("/menu-item/:menuId", async (req, res) => {
+  const { menuId } = req.params;
+  try {
+    const [rows] = await db.query("SELECT * FROM menus WHERE id = ?", [menuId]);
+    if (rows.length === 0) {
+      return res.status(404).json({ message: "Menu item not found" });
+    }
+    res.json(rows[0]);
+  } catch (err) {
+    console.error("Database Error:", err);
+    res.status(500).json({ error: "Database error" });
+  }
 });
 
 //PLACE ORDER
-app.post("/orders", (req, res) => {
-    const { user_id, restaurant_id, items } = req.body;
-    const items_str = JSON.stringify(items);
+app.post("/orders", async (req, res) => {
+  const { user_id, restaurant_id, items } = req.body;
+  const items_str = JSON.stringify(items);
 
-    const insertOrderSql = `
-        INSERT INTO orders (user_id, restaurant_id, items, status, delivery_person_id)
-        VALUES (?, ?, ?, 'Preparing', NULL)
-    `;
-
-    db.query(insertOrderSql, [user_id, restaurant_id, items_str], (err, result) => {
-        if (err) {
-            console.error("Order insert error:", err);
-            return res.status(500).json({ error: "Failed to place order" });
-        }
-
-        res.status(201).json({
-            success: true,
-            message: "Order placed successfully!",
-            order_id: result.insertId,
-        });
+  try {
+    const [result] = await db.query(
+      "INSERT INTO orders (user_id, restaurant_id, items, status, delivery_person_id) VALUES (?, ?, ?, 'Preparing', NULL)",
+      [user_id, restaurant_id, items_str]
+    );
+    res.status(201).json({
+      success: true,
+      message: "Order placed successfully!",
+      order_id: result.insertId,
     });
+  } catch (err) {
+    console.error("Order insert error:", err);
+    res.status(500).json({ error: "Failed to place order" });
+  }
 });
 
 
-app.get("/orders/:userId", (req, res) => {
-    const { userId } = req.params;
+app.get("/orders/:userId", async (req, res) => {
+  const { userId } = req.params;
 
-    const sql = `
-        SELECT 
-            o.*, 
-            r.name AS restaurant_name,
-            d.name AS delivery_person_name,
-            d.contact_info AS delivery_person_phone
-        FROM orders o 
-        JOIN restaurants r ON o.restaurant_id = r.id
-        LEFT JOIN delivery_personnel d ON o.delivery_person_id = d.id
-        WHERE o.user_id = ?
-    `;
+  const sql = `
+    SELECT 
+      o.*, 
+      r.name AS restaurant_name,
+      d.name AS delivery_person_name,
+      d.contact_info AS delivery_person_phone
+    FROM orders o 
+    JOIN restaurants r ON o.restaurant_id = r.id
+    LEFT JOIN delivery_personnel d ON o.delivery_person_id = d.id
+    WHERE o.user_id = ?
+  `;
 
-    db.query(sql, [userId], (err, result) => {
-        if (err) {
-            console.error("Error fetching orders with delivery info:", err);
-            return res.status(500).json(err);
-        }
-        res.json(result);
-    });
+  try {
+    const [result] = await db.query(sql, [userId]);
+    res.json(result);
+  } catch (err) {
+    console.error("Error fetching orders with delivery info:", err);
+    res.status(500).json({ error: "Failed to fetch user orders" });
+  }
 });
 
+app.get("/restaurant-orders/:restaurantId", async (req, res) => {
+  const { restaurantId } = req.params;
 
-app.get("/restaurant-orders/:restaurantId", (req, res) => {
-    const { restaurantId } = req.params;
-
-    const sql = `
-        SELECT * FROM orders
-        WHERE restaurant_id = ?
-    `;
-
-    db.query(sql, [restaurantId], (err, result) => {
-        if (err) return res.status(500).json(err);
-        res.json(result);
-    });
+  try {
+    const [result] = await db.query("SELECT * FROM orders WHERE restaurant_id = ?", [restaurantId]);
+    res.json(result);
+  } catch (err) {
+    console.error("Error fetching restaurant orders:", err);
+    res.status(500).json({ error: "Failed to fetch restaurant orders" });
+  }
 });
 
+app.post("/restaurant/login", async (req, res) => {
+  const { email, password } = req.body;
 
-app.post("/restaurant/login", (req, res) => {
-    const { email, password } = req.body;
-    const sql = "SELECT * FROM restaurants WHERE email = ? AND password = ?";
-    db.query(sql, [email, password], (err, result) => {
-        if (err) return res.status(500).json({ message: "Database error", error: err });
-        if (result.length === 0) return res.status(401).json({ message: "Invalid credentials" });
+  try {
+    const [result] = await db.query(
+      "SELECT * FROM restaurants WHERE email = ? AND password = ?",
+      [email, password]
+    );
 
-        const restaurant = result[0];
-        res.json({
-            message: "Login successful",
-            restaurantId: restaurant.id,
-            restaurantName: restaurant.name,
-        });
-    });
-});
-app.post("/restaurant/add-dish", (req, res) => {
-    const { restaurant_id, dish_name, price, image_url, availability } = req.body;
-
-    const sql = `
-        INSERT INTO menus (restaurant_id, dish_name, price, image_url, availability)
-        VALUES (?, ?, ?, ?, ?)
-    `;
-
-    db.query(sql, [restaurant_id, dish_name, price, image_url, availability], (err, result) => {
-        if (err) return res.status(500).json(err);
-        res.json({ message: "Dish added successfully" });
-    });
-});
-app.get('/restaurant-menu/:restaurantId', (req, res) => {
-    const { restaurantId } = req.params;
-
-    const sql = "SELECT * FROM menus WHERE restaurant_id = ?";
-    db.query(sql, [restaurantId], (err, results) => {
-        if (err) {
-            console.error("Error fetching menu:", err);
-            return res.status(500).json({ message: "Failed to fetch menu" });
-        }
-        res.json(results);
-    });
-});
-
-app.post("/restaurant/register", (req, res) => {
-    const { name, email, password, address, contact_info, image_url } = req.body;
-  
-    const checkSql = "SELECT * FROM restaurants WHERE email = ?";
-    db.query(checkSql, [email], (err, result) => {
-      if (err) {
-        return res.status(500).json({ message: "Database error", error: err });
-      }
-  
-      if (result.length > 0) {
-        return res.status(409).json({ message: "Email already exists" });
-      }
-  
-      const sql = `
-        INSERT INTO restaurants (name, email, password, address, contact_info, image_url)
-        VALUES (?, ?, ?, ?, ?, ?)
-      `;
-  
-      db.query(sql, [name, email, password, address, contact_info, image_url], (err, result) => {
-        if (err) {
-          console.error("Database error during insertion:", err); // <-- Important!
-          return res.status(500).json({ message: "Failed to register", error: err });
-        }
-        res.json({ message: "Restaurant registered successfully", restaurantId: result.insertId });
-      });
-    });
-});
-  app.put('/toggle-availability/:dishId', (req, res) => {
-    const { dishId } = req.params;
-    const { availability } = req.body;
-
-    const sql = "UPDATE menus SET availability = ? WHERE id = ?";
-    db.query(sql, [availability, dishId], (err, result) => {
-        if (err) {
-            console.error("Error updating availability:", err);
-            return res.status(500).json({ error: "Failed to update availability" });
-        }
-
-        if (result.affectedRows === 0) {
-            return res.status(404).json({ message: "Dish not found" });
-        }
-
-        res.json({ message: "Availability updated successfully" });
-    });
-});
-  
-app.put("/orders/:id/deliver", (req, res) => {
-    const { id } = req.params;
-
-    const getDeliverySql = `SELECT delivery_person_id FROM orders WHERE id = ?`;
-
-    db.query(getDeliverySql, [id], (err, result) => {
-        if (err || result.length === 0) {
-            return res.status(500).json({ error: "Failed to find order" });
-        }
-
-        const deliveryPersonId = result[0].delivery_person_id;
-
-        const updateOrderSql = `
-            UPDATE orders SET status = 'Delivered' WHERE id = ?
-        `;
-
-        db.query(updateOrderSql, [id], (err) => {
-            if (err) return res.status(500).json(err);
-
-            const updatePersonnelSql = `
-                UPDATE delivery_personnel SET available = TRUE WHERE id = ?
-            `;
-            db.query(updatePersonnelSql, [deliveryPersonId], (err) => {
-                if (err) return res.status(500).json(err);
-                res.json({ message: "Order marked as delivered and personnel freed" });
-            });
-        });
-    });
-});
-
-app.put('/orders/:id/status', (req, res) => {
-    const { id } = req.params;
-    const { status } = req.body;
-
-    const allowedStatuses = ['Preparing', 'On the Way', 'Delivered'];
-    if (!allowedStatuses.includes(status)) {
-        return res.status(400).json({ error: 'Invalid status' });
+    if (result.length === 0) {
+      return res.status(401).json({ message: "Invalid credentials" });
     }
 
+    const restaurant = result[0];
+    res.json({
+      message: "Login successful",
+      restaurantId: restaurant.id,
+      restaurantName: restaurant.name,
+    });
+  } catch (err) {
+    console.error("Login error:", err);
+    res.status(500).json({ message: "Database error", error: err });
+  }
+});
+
+app.post("/restaurant/add-dish", async (req, res) => {
+  const { restaurant_id, dish_name, price, image_url, availability } = req.body;
+
+  try {
+    const [result] = await db.query(
+      "INSERT INTO menus (restaurant_id, dish_name, price, image_url, availability) VALUES (?, ?, ?, ?, ?)",
+      [restaurant_id, dish_name, price, image_url, availability]
+    );
+    res.json({ message: "Dish added successfully" });
+  } catch (err) {
+    console.error("Error adding dish:", err);
+    res.status(500).json({ error: "Failed to add dish" });
+  }
+});
+
+app.get("/restaurant-menu/:restaurantId", async (req, res) => {
+  const { restaurantId } = req.params;
+
+  try {
+    const [results] = await db.query("SELECT * FROM menus WHERE restaurant_id = ?", [restaurantId]);
+    res.json(results);
+  } catch (err) {
+    console.error("Error fetching menu:", err);
+    res.status(500).json({ message: "Failed to fetch menu" });
+  }
+});
+
+app.post("/restaurant/register", async (req, res) => {
+  const { name, email, password, address, contact_info, image_url } = req.body;
+
+  try {
+    const [existing] = await db.query("SELECT * FROM restaurants WHERE email = ?", [email]);
+
+    if (existing.length > 0) {
+      return res.status(409).json({ message: "Email already exists" });
+    }
+
+    const [result] = await db.query(
+      "INSERT INTO restaurants (name, email, password, address, contact_info, image_url) VALUES (?, ?, ?, ?, ?, ?)",
+      [name, email, password, address, contact_info, image_url]
+    );
+
+    res.json({ message: "Restaurant registered successfully", restaurantId: result.insertId });
+  } catch (err) {
+    console.error("Database error during registration:", err);
+    res.status(500).json({ message: "Failed to register", error: err });
+  }
+});
+
+app.put('/toggle-availability/:dishId', async (req, res) => {
+  const { dishId } = req.params;
+  const { availability } = req.body;
+
+  try {
+    const [result] = await db.query("UPDATE menus SET availability = ? WHERE id = ?", [availability, dishId]);
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ message: "Dish not found" });
+    }
+
+    res.json({ message: "Availability updated successfully" });
+  } catch (err) {
+    console.error("Error updating availability:", err);
+    res.status(500).json({ error: "Failed to update availability" });
+  }
+});
+
+app.put("/orders/:id/deliver", async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const [orderResult] = await db.query("SELECT delivery_person_id FROM orders WHERE id = ?", [id]);
+    if (orderResult.length === 0) {
+      return res.status(404).json({ error: "Order not found" });
+    }
+
+    const deliveryPersonId = orderResult[0].delivery_person_id;
+
+    await db.query("UPDATE orders SET status = 'Delivered' WHERE id = ?", [id]);
+    await db.query("UPDATE delivery_personnel SET available = TRUE WHERE id = ?", [deliveryPersonId]);
+
+    res.json({ message: "Order marked as delivered and personnel freed" });
+  } catch (err) {
+    console.error("Error marking order as delivered:", err);
+    res.status(500).json({ error: "Failed to deliver order" });
+  }
+});
+
+app.put('/orders/:id/status', async (req, res) => {
+  const { id } = req.params;
+  const { status } = req.body;
+
+  const allowedStatuses = ['Preparing', 'On the Way', 'Delivered'];
+  if (!allowedStatuses.includes(status)) {
+    return res.status(400).json({ error: 'Invalid status' });
+  }
+
+  try {
     if (status === "On the Way") {
-        const findPersonnelSql = `
-            SELECT id, name, contact_info 
-            FROM delivery_personnel 
-            WHERE available = TRUE 
-            ORDER BY RAND() 
-            LIMIT 1
-        `;
+      const [deliveryResult] = await db.query(`
+        SELECT id, name, contact_info
+        FROM delivery_personnel
+        WHERE available = TRUE
+        ORDER BY RAND()
+        LIMIT 1
+      `);
 
-        db.query(findPersonnelSql, (err, deliveryResult) => {
-            if (err || deliveryResult.length === 0) {
-                return res.status(500).json({ error: "No delivery personnel available" });
-            }
+      if (deliveryResult.length === 0) {
+        return res.status(500).json({ error: "No delivery personnel available" });
+      }
 
-            const deliveryPerson = deliveryResult[0];
-            const delivery_person_id = deliveryPerson.id;
+      const deliveryPerson = deliveryResult[0];
 
-            const updateOrderSql = `
-                UPDATE orders SET status=?, delivery_person_id = ? WHERE id = ?
-            `;
-            db.query(updateOrderSql, [status, delivery_person_id, id], (err) => {
-                if (err) return res.status(500).json({ error: "Failed to update status" });
+      await db.query("UPDATE orders SET status = ?, delivery_person_id = ? WHERE id = ?", [status, deliveryPerson.id, id]);
+      await db.query("UPDATE delivery_personnel SET available = FALSE WHERE id = ?", [deliveryPerson.id]);
 
-                const updatePersonnelSql = `
-                    UPDATE delivery_personnel SET available = FALSE WHERE id = ?
-                `;
-                db.query(updatePersonnelSql, [delivery_person_id], (err) => {
-                    if (err) return res.status(500).json(err);
-                    res.json({ message: "Order is now on the way", deliveryPerson });
-                });
-            });
-        });
+      res.json({ message: "Order is now on the way", deliveryPerson });
     } else if (status === "Delivered") {
-        // Just update the status and release delivery personnel if assigned
-        const updateQuery = `UPDATE orders SET status = ? WHERE id = ?`;
-        db.query(updateQuery, [status, id], (err) => {
-            if (err) return res.status(500).json({ error: "Failed to update status" });
+      await db.query("UPDATE orders SET status = ? WHERE id = ?", [status, id]);
+      await db.query(`
+        UPDATE delivery_personnel
+        SET available = TRUE
+        WHERE id = (SELECT delivery_person_id FROM orders WHERE id = ?)
+      `, [id]);
 
-            const freeDeliveryPersonSql = `
-                UPDATE delivery_personnel 
-                SET available = TRUE 
-                WHERE id = (SELECT delivery_person_id FROM orders WHERE id = ?)
-            `;
-            db.query(freeDeliveryPersonSql, [id], (err) => {
-                if (err) console.log("Could not update delivery personnel availability");
-                res.json({ message: "Order delivered successfully" });
-            });
-        });
+      res.json({ message: "Order delivered successfully" });
     } else {
-        const updateQuery = `UPDATE orders SET status = ? WHERE id = ?`;
-        db.query(updateQuery, [status, id], (err) => {
-            if (err) return res.status(500).json({ error: "Failed to update status" });
-            res.json({ message: "Order status updated successfully" });
-        });
+      await db.query("UPDATE orders SET status = ? WHERE id = ?", [status, id]);
+      res.json({ message: "Order status updated successfully" });
     }
+  } catch (err) {
+    console.error("Error updating order status:", err);
+    res.status(500).json({ error: "Failed to update status" });
+  }
 });
 
-app.get('/orders/:id/status', (req, res) => {
-    const { id } = req.params;
-    const query = `
+
+app.get('/orders/:id/status', async (req, res) => {
+  const { id } = req.params;
+  try {
+    const [result] = await db.query(`
       SELECT 
         o.status,
         dp.name AS delivery_person_name,
@@ -406,68 +370,71 @@ app.get('/orders/:id/status', (req, res) => {
       FROM orders o
       LEFT JOIN delivery_personnel dp ON o.delivery_person_id = dp.id
       WHERE o.id = ?
-    `;
-  
-    db.query(query, [id], (err, result) => {
-      if (err) return res.status(500).json({ error: 'Error fetching status' });
-      if (result.length === 0) return res.status(404).json({ error: 'Order not found' });
-  
-      const { status, delivery_person_name, delivery_person_contact } = result[0];
-  
-      const response = {
-        status,
-        deliveryPerson: delivery_person_name
-          ? {
-              name: delivery_person_name,
-              phone: delivery_person_contact,
-            }
-          : null,
-      };
-  
-      res.json(response);
-    });
+    `, [id]);
+
+    if (result.length === 0) return res.status(404).json({ error: 'Order not found' });
+
+    const { status, delivery_person_name, delivery_person_contact } = result[0];
+
+    const response = {
+      status,
+      deliveryPerson: delivery_person_name
+        ? {
+            name: delivery_person_name,
+            phone: delivery_person_contact,
+          }
+        : null,
+    };
+
+    res.json(response);
+  } catch (err) {
+    console.error("Error fetching order status:", err);
+    res.status(500).json({ error: 'Error fetching status' });
+  }
 });
-  
-// Get all menu items with restaurant names
-app.get("/dishes", (req, res) => {
-    const sql = `
+
+app.get("/dishes", async (req, res) => {
+  try {
+    const [result] = await db.query(`
       SELECT m.*, r.name AS restaurant_name
       FROM menus m
       JOIN restaurants r ON m.restaurant_id = r.id
       WHERE m.availability=TRUE;
-    `;
-  
-    db.query(sql, (err, result) => {
-      if (err) {
-        console.error("Error in /dishes route:", err);
-        return res.status(500).json(err);
-      }
-      res.json(result);
-    });
-});
-  // Get user details
-app.get("/user/:id", (req, res) => {
-    const { id } = req.params;
-    db.query("SELECT address, pincode, state FROM users WHERE id = ?", [id], (err, results) => {
-      if (err) return res.status(500).json({ error: "Failed to fetch user" });
-      if (results.length === 0) return res.status(404).json({ error: "User not found" });
-      res.json(results[0]);
-    });
-});
-  app.put("/user/:id/address", (req, res) => {
-    const { id } = req.params;
-    const { address, pincode, state } = req.body;
-    db.query(
-      "UPDATE users SET address = ?, pincode = ?, state = ? WHERE id = ?",
-      [address, pincode, state, id],
-      (err) => {
-        if (err) return res.status(500).json({ error: "Failed to update address" });
-        res.json({ message: "Address updated successfully" });
-      }
-    );
+    `);
+    res.json(result);
+  } catch (err) {
+    console.error("Error in /dishes route:", err);
+    res.status(500).json({ error: "Failed to fetch dishes" });
+  }
 });
 
-//START SERVER
+app.get("/user/:id", async (req, res) => {
+  const { id } = req.params;
+  try {
+    const [results] = await db.query("SELECT address, pincode, state FROM users WHERE id = ?", [id]);
+    if (results.length === 0) return res.status(404).json({ error: "User not found" });
+    res.json(results[0]);
+  } catch (err) {
+    console.error("Error fetching user:", err);
+    res.status(500).json({ error: "Failed to fetch user" });
+  }
+});
+
+app.put("/user/:id/address", async (req, res) => {
+  const { id } = req.params;
+  const { address, pincode, state } = req.body;
+  try {
+    await db.query(
+      "UPDATE users SET address = ?, pincode = ?, state = ? WHERE id = ?",
+      [address, pincode, state, id]
+    );
+    res.json({ message: "Address updated successfully" });
+  } catch (err) {
+    console.error("Error updating address:", err);
+    res.status(500).json({ error: "Failed to update address" });
+  }
+});
+
 app.listen(port, () => {
-    console.log(`Server running on port ${port}`);
+  console.log(`Server running on port ${port}`);
 });
