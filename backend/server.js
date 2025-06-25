@@ -17,7 +17,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 const port = process.env.PORT || 5000;
 
-const db = mysql.createConnection({
+const pool = mysql.createPool({
     host: process.env.MYSQLHOST,
     user: process.env.MYSQLUSER,
     password: process.env.MYSQLPASSWORD, // Now securely loaded from .env
@@ -25,13 +25,7 @@ const db = mysql.createConnection({
     port: process.env.MYSQLPORT,
 });
 
-db.connect(err => {
-    if (err) {
-        console.error("DB Connection Error:", err);
-    } else {
-        console.log("Database connected!");
-    }
-});
+const db=pool.promise();
 
 app.get("/", (req, res) => {
   res.send("Backend is live!");
@@ -93,21 +87,14 @@ app.post("/login", (req, res) => {
 });
 
 // GET RESTAURANTS
-app.get("/restaurants", (req, res) => {
-  db.query(
-    "SELECT id, name, address, contact_info, image_url FROM restaurants",
-    (err, result) => {
-      if (err) {
-        console.error("Database error in /restaurants route:", err);  // Log to Railway console
-        return res.status(500).json({
-          error: "Database query failed",
-          message: err.message
-        });
-      }
-
-      res.status(200).json(result);
-    }
-  );
+app.get("/restaurants", async (req, res) => {
+  try {
+    const [rows] = await db.query("SELECT id, name, address, contact_info, image_url FROM restaurants");
+    res.json(rows);
+  } catch (err) {
+    console.error("DB error:", err);
+    res.status(500).json({ error: "Failed to fetch restaurants" });
+  }
 });
 
 
